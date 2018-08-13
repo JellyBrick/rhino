@@ -24,3 +24,5 @@ target/
 test262
 bin/
 .settings/
+
+local.properties
