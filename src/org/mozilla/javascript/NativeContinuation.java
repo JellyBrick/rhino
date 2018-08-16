@@ -6,7 +6,7 @@
 
 package org.mozilla.javascript;
 
-import java.util.Objects;
+import org.mozilla.rhino.android.Objects;
 
 public final class NativeContinuation extends IdScriptableObject
     implements Function

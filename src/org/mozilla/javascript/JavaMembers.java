@@ -6,6 +6,8 @@
 
 package org.mozilla.javascript;
 
+import org.mozilla.rhino.android.Executables;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -713,7 +715,7 @@ class JavaMembers
         for (MemberBox method : methods) {
             // Does getter method have an empty parameter list with a return
             // value (eg. a getSomething() or isSomething())?
-            if (method.member().getParameterCount() == 0 && (!isStatic || method.isStatic())) {
+            if (Executables.getParameterCount(method.member()) == 0 && (!isStatic || method.isStatic())) {
                 Class<?> type = method.getReturnType();
                 if (type != Void.TYPE) {
                     return method;
@@ -764,7 +766,7 @@ class JavaMembers
         for (MemberBox method : methods) {
             if (!isStatic || method.isStatic()) {
                 if (method.getReturnType() == Void.TYPE) {
-                    if (method.member().getParameterCount() == 1) {
+                    if (Executables.getParameterCount(method.member()) == 1) {
                         return method;
                     }
                 }

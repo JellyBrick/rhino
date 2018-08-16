@@ -8,6 +8,8 @@
 
 package org.mozilla.javascript;
 
+import android.os.Build;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -250,7 +252,7 @@ public abstract class ScriptableObject implements Scriptable,
             String fName = name == null ? "f" : name.toString();
             if (getter != null) {
                 if ( getter instanceof MemberBox ) {
-                    desc.defineProperty("get", new FunctionObject(fName, ((MemberBox)getter).member(), scope), EMPTY);
+                    desc.defineProperty("get", new FunctionObject(fName, (Member) ((MemberBox)getter).member(), scope), EMPTY);
                 } else if ( getter instanceof Member ) {
                     desc.defineProperty("get", new FunctionObject(fName, (Member)getter, scope), EMPTY);
                 } else {
@@ -259,7 +261,7 @@ public abstract class ScriptableObject implements Scriptable,
             }
             if (setter != null) {
                 if ( setter instanceof MemberBox ) {
-                    desc.defineProperty("set", new FunctionObject(fName, ((MemberBox) setter).member(), scope), EMPTY);
+                    desc.defineProperty("set", new FunctionObject(fName, (Member) ((MemberBox) setter).member(), scope), EMPTY);
                 } else if ( setter instanceof Member ) {
                     desc.defineProperty("set", new FunctionObject(fName, (Member) setter, scope), EMPTY);
                 } else {
@@ -367,7 +369,11 @@ public abstract class ScriptableObject implements Scriptable,
     {
         Context cx = Context.getCurrentContext();
         if ((cx != null) && cx.hasFeature(Context.FEATURE_THREAD_SAFE_OBJECTS)) {
-            return new ThreadSafeSlotMapContainer(initialSize);
+            if (Build.VERSION.SDK_INT >= 24) {
+                return new ThreadSafeSlotMapContainer(initialSize);
+            } else {
+                return new ThreadSafeSlotMapContainer_jdk15(initialSize);
+            }
         }
         return new SlotMapContainer(initialSize);
     }

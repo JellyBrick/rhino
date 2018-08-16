@@ -6,8 +6,10 @@
 
 package org.mozilla.javascript.jdk18;
 
+import android.support.annotation.RequiresApi;
 import java.lang.reflect.Method;
 
+@RequiresApi(24)
 public class VMBridge_jdk18 extends org.mozilla.javascript.jdk15.VMBridge_jdk15
 {
     public VMBridge_jdk18() throws SecurityException, InstantiationException {

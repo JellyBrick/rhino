@@ -8,6 +8,7 @@
 
 package org.mozilla.javascript;
 
+import android.os.Build;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -19,11 +20,19 @@ public abstract class VMBridge
 
     private static VMBridge makeInstance()
     {
-        String[] classNames = {
-            "org.mozilla.javascript.VMBridge_custom",
-            "org.mozilla.javascript.jdk18.VMBridge_jdk18",
-            "org.mozilla.javascript.jdk15.VMBridge_jdk15",
-        };
+        String[] classNames;
+        if (Build.VERSION.SDK_INT >= 24) {
+            classNames = new String[] {
+                    "org.mozilla.javascript.VMBridge_custom",
+                    "org.mozilla.javascript.jdk18.VMBridge_jdk18",
+                    "org.mozilla.javascript.jdk15.VMBridge_jdk15",
+            };
+        } else {
+            classNames = new String[] {
+                    "org.mozilla.javascript.VMBridge_custom",
+                    "org.mozilla.javascript.jdk15.VMBridge_jdk15",
+            };
+        }
         for (int i = 0; i != classNames.length; ++i) {
             String className = classNames[i];
             Class<?> cl = Kit.classOrNull(className);
