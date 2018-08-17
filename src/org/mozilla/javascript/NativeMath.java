@@ -87,8 +87,8 @@ final class NativeMath extends IdScriptableObject
             String name;
             double x;
             switch (id) {
-              case Id_E:       x = Math.E;             name = "E";       break;
-              case Id_PI:      x = Math.PI;            name = "PI";      break;
+              case Id_E:       x = StrictMath.E;             name = "E";       break;
+              case Id_PI:      x = StrictMath.PI;            name = "PI";      break;
               case Id_LN10:    x = 2.302585092994046;  name = "LN10";    break;
               case Id_LN2:     x = 0.6931471805599453; name = "LN2";     break;
               case Id_LOG2E:   x = LOG2E;              name = "LOG2E";   break;
@@ -125,7 +125,7 @@ final class NativeMath extends IdScriptableObject
             case Id_asin:
                 x = ScriptRuntime.toNumber(args, 0);
                 if (x == x && -1.0 <= x && x <= 1.0) {
-                    x = (methodId == Id_acos) ? Math.acos(x) : Math.asin(x);
+                    x = (methodId == Id_acos) ? StrictMath.acos(x) : StrictMath.asin(x);
                 } else {
                     x = Double.NaN;
                 }
@@ -134,7 +134,7 @@ final class NativeMath extends IdScriptableObject
             case Id_acosh:
                 x = ScriptRuntime.toNumber(args, 0);
                 if (x == x) {
-                    return Math.log(x + Math.sqrt(x*x - 1.0));
+                    return StrictMath.log(x + StrictMath.sqrt(x*x - 1.0));
                 }
                 return Double.NaN;
 
@@ -151,13 +151,13 @@ final class NativeMath extends IdScriptableObject
                         }
                         return -0.0;
                     }
-                    return Math.log(x + Math.sqrt(x*x + 1.0));
+                    return StrictMath.log(x + StrictMath.sqrt(x*x + 1.0));
                 }
                 return Double.NaN;
 
             case Id_atan:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.atan(x);
+                x = StrictMath.atan(x);
                 break;
 
             case Id_atanh:
@@ -169,23 +169,23 @@ final class NativeMath extends IdScriptableObject
                         }
                         return -0.0;
                     }
-                    return 0.5 * Math.log((x + 1.0) / (x - 1.0));
+                    return 0.5 * StrictMath.log((x + 1.0) / (x - 1.0));
                 }
                 return Double.NaN;
 
             case Id_atan2:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.atan2(x, ScriptRuntime.toNumber(args, 1));
+                x = StrictMath.atan2(x, ScriptRuntime.toNumber(args, 1));
                 break;
 
             case Id_cbrt:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.cbrt(x);
+                x = StrictMath.cbrt(x);
                 break;
 
             case Id_ceil:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.ceil(x);
+                x = StrictMath.ceil(x);
                 break;
 
             case Id_clz32:
@@ -200,18 +200,18 @@ final class NativeMath extends IdScriptableObject
                 if (n == 0) {
                     return 32;
                 }
-                return 31 - Math.floor(Math.log(n >>> 0) * LOG2E);
+                return 31 - StrictMath.floor(StrictMath.log(n >>> 0) * LOG2E);
 
             case Id_cos:
                 x = ScriptRuntime.toNumber(args, 0);
                 x = (x == Double.POSITIVE_INFINITY
                      || x == Double.NEGATIVE_INFINITY)
-                    ? Double.NaN : Math.cos(x);
+                    ? Double.NaN : StrictMath.cos(x);
                 break;
 
             case Id_cosh:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.cosh(x);
+                x = StrictMath.cosh(x);
                 break;
 
             case Id_hypot:
@@ -222,17 +222,17 @@ final class NativeMath extends IdScriptableObject
                 x = ScriptRuntime.toNumber(args, 0);
                 x = (x == Double.POSITIVE_INFINITY) ? x
                     : (x == Double.NEGATIVE_INFINITY) ? 0.0
-                    : Math.exp(x);
+                    : StrictMath.exp(x);
                 break;
 
             case Id_expm1:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.expm1(x);
+                x = StrictMath.expm1(x);
                 break;
 
             case Id_floor:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.floor(x);
+                x = StrictMath.floor(x);
                 break;
 
             case Id_fround:
@@ -246,23 +246,23 @@ final class NativeMath extends IdScriptableObject
             case Id_log:
                 x = ScriptRuntime.toNumber(args, 0);
                 // Java's log(<0) = -Infinity; we need NaN
-                x = (x < 0) ? Double.NaN : Math.log(x);
+                x = (x < 0) ? Double.NaN : StrictMath.log(x);
                 break;
 
             case Id_log1p:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.log1p(x);
+                x = StrictMath.log1p(x);
                 break;
 
             case Id_log10:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.log10(x);
+                x = StrictMath.log10(x);
                 break;
 
             case Id_log2:
                 x = ScriptRuntime.toNumber(args, 0);
                 // Java's log(<0) = -Infinity; we need NaN
-                x = (x < 0) ? Double.NaN : Math.log(x) * LOG2E;
+                x = (x < 0) ? Double.NaN : StrictMath.log(x) * LOG2E;
                 break;
 
             case Id_max:
@@ -277,9 +277,9 @@ final class NativeMath extends IdScriptableObject
                     }
                     if (methodId == Id_max) {
                         // if (x < d) x = d; does not work due to -0.0 >= +0.0
-                        x = Math.max(x, d);
+                        x = StrictMath.max(x, d);
                     } else {
-                        x = Math.min(x, d);
+                        x = StrictMath.min(x, d);
                     }
                 }
                 break;
@@ -290,7 +290,7 @@ final class NativeMath extends IdScriptableObject
                 break;
 
             case Id_random:
-                x = Math.random();
+                x = StrictMath.random();
                 break;
 
             case Id_round:
@@ -299,7 +299,7 @@ final class NativeMath extends IdScriptableObject
                     && x != Double.NEGATIVE_INFINITY)
                 {
                     // Round only finite x
-                    long l = Math.round(x);
+                    long l = StrictMath.round(x);
                     if (l != 0) {
                         x = l;
                     } else {
@@ -322,7 +322,7 @@ final class NativeMath extends IdScriptableObject
                         }
                         return -0.0;
                     }
-                    return Math.signum(x);
+                    return StrictMath.signum(x);
                 }
                 return Double.NaN;
 
@@ -330,27 +330,27 @@ final class NativeMath extends IdScriptableObject
                 x = ScriptRuntime.toNumber(args, 0);
                 x = (x == Double.POSITIVE_INFINITY
                      || x == Double.NEGATIVE_INFINITY)
-                    ? Double.NaN : Math.sin(x);
+                    ? Double.NaN : StrictMath.sin(x);
                 break;
 
             case Id_sinh:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.sinh(x);
+                x = StrictMath.sinh(x);
                 break;
 
             case Id_sqrt:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.sqrt(x);
+                x = StrictMath.sqrt(x);
                 break;
 
             case Id_tan:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.tan(x);
+                x = StrictMath.tan(x);
                 break;
 
             case Id_tanh:
                 x = ScriptRuntime.toNumber(args, 0);
-                x = Math.tanh(x);
+                x = StrictMath.tanh(x);
                 break;
 
             case Id_trunc:
@@ -386,7 +386,7 @@ final class NativeMath extends IdScriptableObject
                 }
             }
         } else {
-            result = Math.pow(x, y);
+            result = StrictMath.pow(x, y);
             if (result != result) {
                 // Check for broken Java implementations that gives NaN
                 // when they should return something else
@@ -436,12 +436,12 @@ final class NativeMath extends IdScriptableObject
             }
             y += d * d;
         }
-        return Math.sqrt(y);
+        return StrictMath.sqrt(y);
     }
 
     private double js_trunc(double d)
     {
-        return ((d < 0.0) ? Math.ceil(d) : Math.floor(d));
+        return ((d < 0.0) ? StrictMath.ceil(d) : StrictMath.floor(d));
     }
 
     // From EcmaScript 6 section 20.2.2.19
