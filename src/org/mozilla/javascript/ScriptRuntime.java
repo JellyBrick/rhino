@@ -346,6 +346,10 @@ public class ScriptRuntime {
             case '\u00A0': // <NBSP>
             case '\u000C': // <FF>
             case '\u000B': // <VT>
+            case '\u180E': // <MVS>
+                           // Starting from unicode 6.3, MVS isn't in Unicode general category
+                           // "Space_Separator" ("Zs") anymore. But rhino still supports it now.
+                           // He's the boss.
             case '\u2028': // <LS>
             case '\u2029': // <PS>
             case '\uFEFF': // <BOM>
