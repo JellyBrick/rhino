@@ -1426,8 +1426,17 @@ public class ClassFileWriter {
             System.arraycopy(itsLineNumberTable, 0, tmp, 0, N);
             itsLineNumberTable = tmp;
         }
-        itsLineNumberTable[N] = (itsCodeBufferTop << 16) + lineNumber;
-        itsLineNumberTableTop = N + 1;
+
+        // If start_pc is the same, update the line_number
+        // It fixes the stack line number
+        // Android dex converter ignored following duplicated start_pc
+        // But jvm thrown exception uses the last line_number
+        if (N > 0 && (itsLineNumberTable[N - 1] >>> 16) == itsCodeBufferTop) {
+            itsLineNumberTable[N - 1] = (itsCodeBufferTop << 16) + lineNumber;
+        } else {
+            itsLineNumberTable[N] = (itsCodeBufferTop << 16) + lineNumber;
+            itsLineNumberTableTop = N + 1;
+        }
     }
 
     /**
