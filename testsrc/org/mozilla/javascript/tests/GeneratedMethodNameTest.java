@@ -4,8 +4,8 @@
 
 package org.mozilla.javascript.tests;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
@@ -71,7 +71,7 @@ public class GeneratedMethodNameTest extends TestCase
 	}
 
 	public void doTest(final String scriptCode) throws Exception {
-		final Context cx = ContextFactory.getGlobal().enterContext();
+		final Context cx = AndroidTestUtils.enterContext();
 		try {
             Scriptable topScope = cx.initStandardObjects();
     		topScope.put("javaNameGetter", topScope, new JavaNameGetter());

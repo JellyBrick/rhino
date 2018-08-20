@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -318,7 +319,7 @@ public class TypedArrayJavaTest
                 "Uint8ClampedArray"
         };
 
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         cx.setLanguageVersion(Context.VERSION_ES6);
         Scriptable global = cx.initStandardObjects();
 

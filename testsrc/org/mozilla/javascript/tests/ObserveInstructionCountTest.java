@@ -9,6 +9,7 @@ package org.mozilla.javascript.tests;
 
 import junit.framework.TestCase;
 
+import org.mozilla.javascript.AndroidTestContextFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
@@ -41,7 +42,7 @@ public class ObserveInstructionCountTest extends TestCase {
         TestUtils.setGlobalContextFactory(null);
     }
 
-    static class MyFactory extends ContextFactory {
+    static class MyFactory extends AndroidTestContextFactory {
 
         @Override
         protected Context makeContext()

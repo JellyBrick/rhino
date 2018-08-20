@@ -6,10 +6,10 @@ package org.mozilla.javascript.tests;
 
 import junit.framework.TestCase;
 
+import org.mozilla.javascript.AndroidTestContextFactory;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -109,7 +109,7 @@ public class TypeOfTest extends TestCase
 
 	private void doTest(final int optimizationLevel, final String expected, final ContextAction action)
 	{
-		Object o = new ContextFactory().call(context -> {
+		Object o = new AndroidTestContextFactory().call(context -> {
 			context.setOptimizationLevel(optimizationLevel);
 			return Context.toString(action.run(context));
 		});

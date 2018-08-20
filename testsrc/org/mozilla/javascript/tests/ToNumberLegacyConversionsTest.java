@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -130,7 +131,7 @@ public class ToNumberLegacyConversionsTest {
 
     @Before
     public void setup() {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         cx.setOptimizationLevel(optLevel);
         cx.setLanguageVersion(Context.VERSION_1_8);
         scope = cx.initSafeStandardObjects();

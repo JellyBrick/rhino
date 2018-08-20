@@ -8,7 +8,7 @@ package org.mozilla.javascript.tools.shell;
 
 import org.mozilla.javascript.*;
 
-public class ShellContextFactory extends ContextFactory
+public class ShellContextFactory extends AndroidTestContextFactory
 {
     private boolean strictMode;
     private boolean warningAsError;

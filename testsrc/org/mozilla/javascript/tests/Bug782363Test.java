@@ -19,6 +19,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -40,7 +41,7 @@ public class Bug782363Test {
 
     @Before
     public void setUp() {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         cx.setLanguageVersion(Context.VERSION_1_8);
         cx.setOptimizationLevel(9);
     }

@@ -1,11 +1,12 @@
 package org.mozilla.javascript.tests.commonjs.module;
 
-import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -40,7 +41,7 @@ public class RequireTest extends TestCase
 
     private Context createContext()
     {
-        final Context cx = Context.enter();
+        final Context cx = AndroidTestUtils.enterContext();
         cx.setOptimizationLevel(-1);
         return cx;
     }
@@ -50,7 +51,7 @@ public class RequireTest extends TestCase
         final Context cx = createContext();
         final Scriptable scope = cx.initStandardObjects();
         final Require require = getSandboxedRequire(cx, scope, false);
-        final String jsFile = getClass().getResource("testNonSandboxed.js").toExternalForm();
+        final String jsFile = AndroidTestUtils.assetFile("testsrc/org/mozilla/javascript/tests/commonjs/module/testNonSandboxed.js").toURI().toString();
         ScriptableObject.putProperty(scope, "moduleUri", jsFile);
         require.requireMain(cx, "testNonSandboxed");
     }
@@ -84,8 +85,8 @@ public class RequireTest extends TestCase
         }
     }
 
-    private Reader getReader(String name) {
-        return new InputStreamReader(getClass().getResourceAsStream(name));
+    private Reader getReader(String name) throws FileNotFoundException {
+        return AndroidTestUtils.assetReader("testsrc/org/mozilla/javascript/tests/commonjs/module/" + name);
     }
 
     private void testWithSandboxedRequire(String moduleId) throws Exception {
@@ -108,7 +109,15 @@ public class RequireTest extends TestCase
     }
 
     private URI getDirectory() throws URISyntaxException {
-        final String jsFile = getClass().getResource("testSandboxed.js").toExternalForm();
+        final String jsFile = AndroidTestUtils.assetFile("testsrc/org/mozilla/javascript/tests/commonjs/module/testSandboxed.js").toURI().toString();
         return new URI(jsFile.substring(0, jsFile.lastIndexOf('/') + 1));
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        while (Context.getCurrentContext() != null) {
+            Context.exit();
+        }
     }
 }

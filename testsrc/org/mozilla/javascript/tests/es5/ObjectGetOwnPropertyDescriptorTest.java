@@ -6,12 +6,25 @@
  * Tests for the Object.getOwnPropertyDescriptor(obj, prop) method
  */
 package org.mozilla.javascript.tests.es5;
+import org.junit.After;
+import org.junit.Before;
 import org.mozilla.javascript.*;
 import static org.mozilla.javascript.tests.Evaluator.eval;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.mozilla.javascript.drivers.TestUtils;
 
 public class ObjectGetOwnPropertyDescriptorTest {
+
+  @Before
+  public void setUp() {
+    TestUtils.setGlobalContextFactory(new AndroidTestContextFactory());
+  }
+
+  @After
+  public void tearDown() {
+    TestUtils.setGlobalContextFactory(null);
+  }
 
   @Test
   public void testContentsOfPropertyDescriptorShouldReflectAttributesOfProperty() {

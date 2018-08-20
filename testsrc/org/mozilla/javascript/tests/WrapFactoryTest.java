@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
@@ -66,7 +67,7 @@ public class WrapFactoryTest {
    */
   private void test(boolean javaPrimitiveWrap, Object object, String result,
       String mapResult, String getResult) {
-    Context cx = Context.enter();
+    Context cx = AndroidTestUtils.enterContext();
     try {
       cx.getWrapFactory().setJavaPrimitiveWrap(javaPrimitiveWrap);
       Scriptable scope = cx.initStandardObjects(new ImporterTopLevel(cx));

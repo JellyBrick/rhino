@@ -14,7 +14,6 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 
 public class UndefinedOrNullThisInFunctionCallOrApplyTest {
 
@@ -24,7 +23,7 @@ public class UndefinedOrNullThisInFunctionCallOrApplyTest {
 
     @Before
     public void setUp() throws Exception {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         function = new BaseFunction() {
             @Override
             public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {

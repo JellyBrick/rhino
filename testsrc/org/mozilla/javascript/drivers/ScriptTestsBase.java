@@ -7,6 +7,7 @@ package org.mozilla.javascript.drivers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
@@ -39,10 +40,10 @@ public abstract class ScriptTestsBase {
         Reader script = null;
         String suiteName = null;
 
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             if (!"".equals(anno.value())) {
-                script = new InputStreamReader(new FileInputStream(anno.value()), "UTF-8");
+                script = AndroidTestUtils.assetReader(anno.value());
                 suiteName = anno.value();
             } else if (!"".equals(anno.inline())) {
                 script = new StringReader("load('testsrc/assert.js');\n" + anno.inline() + "\n" + "'success';");

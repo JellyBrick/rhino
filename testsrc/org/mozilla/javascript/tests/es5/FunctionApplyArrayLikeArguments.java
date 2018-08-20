@@ -21,7 +21,7 @@ public class FunctionApplyArrayLikeArguments {
   
     @Before
     public void init() {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         cx.setOptimizationLevel(-1);
         m_scope = cx.initStandardObjects();
     }

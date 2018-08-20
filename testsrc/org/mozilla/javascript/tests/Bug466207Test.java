@@ -5,6 +5,7 @@
 package org.mozilla.javascript.tests;
 
 import junit.framework.TestCase;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -34,7 +35,7 @@ public class Bug466207Test extends TestCase {
         reference.add(new Integer(42));
         reference.add("a");
         // get a js object as map
-        Context context = Context.enter();
+        Context context = AndroidTestUtils.enterContext();
         ScriptableObject scope = context.initStandardObjects();
         list = (List<Object>) context.evaluateString(scope,
                 "(['a', true, new java.util.HashMap(), 42, 'a']);",

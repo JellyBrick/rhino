@@ -3,6 +3,8 @@ package org.mozilla.javascript.tests;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestContextFactory;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.RhinoException;
@@ -10,7 +12,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.StackStyle;
 import org.mozilla.javascript.tools.shell.Global;
 
-import java.io.FileReader;
+import java.io.Reader;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
@@ -31,7 +33,7 @@ public class StackTraceExtensionTest
 
     private void testTraces(int opt)
     {
-        final ContextFactory factory = new ContextFactory() {
+        final ContextFactory factory = new AndroidTestContextFactory() {
             @Override
             protected boolean hasFeature(Context cx, int featureIndex)
             {
@@ -53,7 +55,7 @@ public class StackTraceExtensionTest
             Global global = new Global(cx);
             Scriptable root = cx.newObject(global);
 
-            FileReader rdr = new FileReader("testsrc/jstests/extensions/stack-traces.js");
+            Reader rdr = AndroidTestUtils.assetReader("testsrc/jstests/extensions/stack-traces.js");
 
             try {
                 cx.evaluateReader(root, rdr, "stack-traces.js", 1, null);

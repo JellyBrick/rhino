@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.AndroidTestContextFactory;
 
 /**
  *
@@ -19,7 +19,7 @@ public class Bug637811Test {
 
     @Before
     public void setUp() throws Exception {
-        cx = new ContextFactory() {
+        cx = new AndroidTestContextFactory() {
             @Override
             protected boolean hasFeature(Context cx, int featureIndex) {
                 switch (featureIndex) {

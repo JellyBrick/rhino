@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ScriptableObject;
@@ -25,7 +26,7 @@ public class Test262RegExpTest {
 
     @Before
     public void setUp() {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         scope = cx.initStandardObjects();
     }
 

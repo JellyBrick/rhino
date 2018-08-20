@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 
 import junit.framework.TestCase;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
@@ -17,11 +18,11 @@ import org.mozilla.javascript.ScriptableObject;
 public class Bug482203Test extends TestCase {
     
     public void testJsApi() throws Exception {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             cx.setOptimizationLevel(-1);
             Script script = cx.compileReader(new InputStreamReader(
-                    Bug482203Test.class.getResourceAsStream("Bug482203.js")),
+                    AndroidTestUtils.assetStream("org/mozilla/javascript/tests/Bug482203.js")),
                     "", 1, null);
             Scriptable scope = cx.initStandardObjects();
             script.exec(cx, scope);
@@ -44,11 +45,11 @@ public class Bug482203Test extends TestCase {
     }
     
     public void testJavaApi() throws Exception {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             cx.setOptimizationLevel(-1);
             Script script = cx.compileReader(new InputStreamReader(
-                    Bug482203Test.class.getResourceAsStream("Bug482203.js")),
+                    AndroidTestUtils.assetStream("org/mozilla/javascript/tests/Bug482203.js")),
                     "", 1, null);
             Scriptable scope = cx.initStandardObjects();
             cx.executeScriptWithContinuations(script, scope);

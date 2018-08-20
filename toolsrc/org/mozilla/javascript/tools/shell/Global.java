@@ -357,7 +357,7 @@ public class Global extends ImporterTopLevel
         }
         Object obj = args[0];
         String filename = Context.toString(args[1]);
-        FileOutputStream fos = new FileOutputStream(filename);
+        FileOutputStream fos = AndroidTestUtils.tempFileOutputStream(filename);
         Scriptable scope = ScriptableObject.getTopLevelScope(thisObj);
         ScriptableOutputStream out = new ScriptableOutputStream(fos, scope);
         out.writeObject(obj);
@@ -373,7 +373,7 @@ public class Global extends ImporterTopLevel
                 "Expected a filename to read the serialization from");
         }
         String filename = Context.toString(args[0]);
-        FileInputStream fis = new FileInputStream(filename);
+        FileInputStream fis = AndroidTestUtils.tempFileInputStream(filename);
         Scriptable scope = ScriptableObject.getTopLevelScope(thisObj);
         ObjectInputStream in = new ScriptableInputStream(fis, scope);
         Object deserialized = in.readObject();

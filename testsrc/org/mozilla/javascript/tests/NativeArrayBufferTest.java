@@ -6,6 +6,7 @@ package org.mozilla.javascript.tests;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -19,7 +20,7 @@ public class NativeArrayBufferTest {
      */
     @Test
     public void test() throws Exception {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         cx.setLanguageVersion(Context.VERSION_ES6);
         Scriptable global = cx.initStandardObjects();
         Object result = cx.evaluateString(global, "(new ArrayBuffer(5)).isView", "", 1, null);

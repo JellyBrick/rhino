@@ -18,7 +18,7 @@ public class DefineClassTest {
 
     @Test
     public void testAnnotatedHostObject() {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             Object result = evaluate(cx, "a = new AnnotatedHostObject(); a.initialized;");
             assertEquals(result, Boolean.TRUE);
@@ -41,7 +41,7 @@ public class DefineClassTest {
 
     @Test
     public void testTraditionalHostObject() {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             Object result = evaluate(cx, "t = new TraditionalHostObject(); t.initialized;");
             assertEquals(result, Boolean.TRUE);

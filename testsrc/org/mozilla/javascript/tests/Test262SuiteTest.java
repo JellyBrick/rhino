@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.RhinoException;
@@ -111,7 +112,7 @@ public class Test262SuiteTest {
                 String harnessPath = "test262/harness/" + harnessFile;
                 HARNESS_SCRIPT_CACHE.get(optLevel).put(
                         harnessFile,
-                        cx.compileReader(new FileReader(harnessPath), harnessPath, 1, null)
+                        cx.compileReader(AndroidTestUtils.assetReader(harnessPath), harnessPath, 1, null)
                 );
             }
             HARNESS_SCRIPT_CACHE.get(optLevel).get(harnessFile).exec(cx, scope);
@@ -184,13 +185,13 @@ public class Test262SuiteTest {
         }
     }
 
-    private static final File testDir = new File("test262/test");
+    private static final File testDir = AndroidTestUtils.assetFile("test262/test");
     private static List<File> getTestFiles() throws IOException {
         List<File> testFiles = new LinkedList<File>();
 
         List<File> dirFiles = new LinkedList<File>();
 
-        Scanner scanner = new Scanner(new File("testsrc/test262.properties"));
+        Scanner scanner = new Scanner(AndroidTestUtils.assetFile("testsrc/test262.properties"));
 
         int lineNo = 0;
         String line = null;
@@ -306,7 +307,7 @@ public class Test262SuiteTest {
                 continue;
             }
 
-            String caseShortPath = testDir.toPath().relativize(testFile.toPath()).toString();
+            String caseShortPath = testDir.toURI().relativize(testFile.toURI()).getPath();
             for (int optLevel : OPT_LEVELS) {
                 if (!testCase.hasFlag("onlyStrict") || testCase.hasFlag("raw")) {
                     result.add(new Object[]{caseShortPath, optLevel, false, testCase});

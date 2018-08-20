@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.mozilla.javascript.Kit;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.commonjs.module.provider.ParsedContentType;
 
 /**
@@ -46,7 +47,12 @@ public class SourceReader
         byte[] data;
         try {
             if (url == null) {
-                File file = new File(path);
+                File file;
+                if (path.startsWith("/")) {
+                    file = new File(path);
+                } else {
+                    file = AndroidTestUtils.assetFile(path);
+                }
                 contentType = encoding = null;
                 capacityHint = (int)file.length();
                 is = new FileInputStream(file);

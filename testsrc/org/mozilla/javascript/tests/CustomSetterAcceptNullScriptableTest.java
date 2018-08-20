@@ -12,6 +12,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.AndroidTestContextFactory;
 
 /**
  * Takes care that it's possible to set <code>null</code> value
@@ -48,7 +49,7 @@ public class CustomSetterAcceptNullScriptableTest extends TestCase
 		final String scriptCode = "foo.myProp = new Foo2();\n"
 			+ "foo.myProp = null;";
 
-		final ContextFactory factory = new ContextFactory();
+		final ContextFactory factory = new AndroidTestContextFactory();
 		final Context cx = factory.enterContext();
 
 		try {

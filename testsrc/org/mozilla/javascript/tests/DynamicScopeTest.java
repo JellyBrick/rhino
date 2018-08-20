@@ -17,7 +17,7 @@ public class DynamicScopeTest extends TestCase {
 	/**
 	 * Define the specific behaviour of our application.
 	 */
-    static class DynamicScopeContextFactory extends ContextFactory
+    static class DynamicScopeContextFactory extends AndroidTestContextFactory
     {
         protected boolean hasFeature(Context cx, int featureIndex)
         {
@@ -83,6 +83,10 @@ public class DynamicScopeTest extends TestCase {
 			assertEquals(23, result);
 		} finally {
 			// cx.exit
+		}
+
+		while (Context.getCurrentContext() != null) {
+			Context.exit();
 		}
 	}
 	

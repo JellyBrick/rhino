@@ -4,9 +4,9 @@
 
 package org.mozilla.javascript.tests;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 
 
@@ -27,29 +27,11 @@ public class Utils
 	}
 
 	/**
-	 * Runs the action successively with all available optimization levels
-	 */
-	public static void runWithAllOptimizationLevels(final ContextFactory contextFactory, final ContextAction action)
-	{
-		runWithOptimizationLevel(contextFactory, action, -1);
-		runWithOptimizationLevel(contextFactory, action, 0);
-		runWithOptimizationLevel(contextFactory, action, 1);
-	}
-
-	/**
 	 * Runs the provided action at the given optimization level
 	 */
 	public static void runWithOptimizationLevel(final ContextAction action, final int optimizationLevel)
 	{
-		runWithOptimizationLevel(new ContextFactory(), action, optimizationLevel);
-	}
-
-	/**
-	 * Runs the provided action at the given optimization level
-	 */
-	public static void runWithOptimizationLevel(final ContextFactory contextFactory, final ContextAction action, final int optimizationLevel)
-	{
-    	final Context cx = contextFactory.enterContext();
+    	final Context cx = AndroidTestUtils.enterContext();
     	try
     	{
     		cx.setOptimizationLevel(optimizationLevel);

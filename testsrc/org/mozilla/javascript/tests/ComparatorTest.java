@@ -1,8 +1,9 @@
 package org.mozilla.javascript.tests;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.RhinoException;
@@ -75,10 +76,10 @@ public class ComparatorTest {
   public void testCustomComparator()
     throws IOException
   {
-    Context cx = Context.enter();
+    Context cx = AndroidTestUtils.enterContext();
     Global global = new Global(cx);
     Scriptable root = cx.newObject(global);
-    FileReader fr = new FileReader("testsrc/jstests/extensions/custom-comparators.js");
+    Reader fr = AndroidTestUtils.assetReader("testsrc/jstests/extensions/custom-comparators.js");
 
     try {
       cx.evaluateReader(root, fr, "custom-comparators.js", 1, null);

@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -31,7 +32,7 @@ public class DefineClassMapInheritance {
     @Test
     public void test() throws IllegalAccessException, InstantiationException,
             InvocationTargetException {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             ScriptableObject scope = cx.initStandardObjects();
 

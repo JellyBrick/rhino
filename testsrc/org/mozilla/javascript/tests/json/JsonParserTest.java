@@ -6,6 +6,7 @@ package org.mozilla.javascript.tests.json;
 
 import static org.junit.Assert.assertEquals;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
@@ -23,7 +24,7 @@ public class JsonParserTest {
 
     @Before
     public void setUp() {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         parser = new JsonParser(cx, cx.initStandardObjects());
     }
 

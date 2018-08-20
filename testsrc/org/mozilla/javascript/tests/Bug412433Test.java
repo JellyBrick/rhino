@@ -18,7 +18,7 @@ import org.mozilla.javascript.*;
 public class Bug412433Test extends TestCase {
     public void testMalformedJavascript2()
     {
-        Context context = Context.enter();
+        Context context = AndroidTestUtils.enterContext();
         try {
 	        ScriptableObject scope = context.initStandardObjects();
 	        context.evaluateString(scope, "\"\".split(/[/?,/&]/)", "", 0, null);

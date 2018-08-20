@@ -3,6 +3,7 @@ package org.mozilla.javascript.tests.commonjs.module;
 import junit.framework.AssertionFailedError;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -31,7 +32,7 @@ public class ComplianceTest {
     @Parameterized.Parameters(name = "/{0}")
     public static Collection<Object[]> data() {
         List<Object[]> retval = new ArrayList<Object[]>(16);
-        final File[] files = new File("testsrc/org/mozilla/javascript/tests/commonjs/module/1.0").listFiles();
+        final File[] files = AndroidTestUtils.assetFile("testsrc/org/mozilla/javascript/tests/commonjs/module/1.0").listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
                 retval.add(new Object[]{file.getName(), file});
@@ -45,13 +46,13 @@ public class ComplianceTest {
         return new Require(cx, scope, new StrongCachingModuleScriptProvider(
                 new UrlModuleSourceProvider(
                         Collections.singleton(dir.getAbsoluteFile().toURI()),
-                        Collections.singleton(new URI(ComplianceTest.class.getResource(".").toExternalForm() + "/")))),
+                        Collections.singleton(AndroidTestUtils.assetFile("testsrc/org/mozilla/javascript/tests/commonjs/module").toURI()))),
                 null, null, false);
     }
 
     @org.junit.Test
     public void testRequire() throws Throwable {
-        final Context cx = Context.enter();
+        final Context cx = AndroidTestUtils.enterContext();
         try {
             cx.setOptimizationLevel(-1);
             final Scriptable scope = cx.initStandardObjects();

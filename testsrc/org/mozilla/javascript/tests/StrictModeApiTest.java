@@ -5,6 +5,7 @@
 package org.mozilla.javascript.tests;
 
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestContextFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ScriptableObject;
@@ -22,7 +23,7 @@ public class StrictModeApiTest {
   private ScriptableObject global;
   private ContextFactory contextFactory;
 
-  static class MyContextFactory extends ContextFactory {
+  static class MyContextFactory extends AndroidTestContextFactory {
     @Override
     protected boolean hasFeature(Context cx, int featureIndex) {
         switch (featureIndex) {

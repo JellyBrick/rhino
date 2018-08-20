@@ -29,7 +29,7 @@ public class Bug419940Test extends TestCase {
       String source =
           "(new JavaAdapter(" + Foo.class.getName() + ", {})).doSomething();";
 
-      Context cx = ContextFactory.getGlobal().enterContext();
+      Context cx = AndroidTestUtils.enterContext();
       try {
           Scriptable scope = cx.initStandardObjects();
           Object result = cx.evaluateString(scope, source, "source", 1, null);

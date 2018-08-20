@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mozilla.javascript.AndroidTestContextFactory;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.tools.shell.Global;
@@ -25,7 +27,7 @@ public class DoctestFeature18EnabledTest extends DoctestsTest {
     @Parameters(name = "{0}")
     public static Collection<Object[]> singleDoctest() throws IOException {
         List<Object[]> result = new ArrayList<Object[]>();
-        File f = new File(DoctestsTest.baseDirectory, "feature18enabled.doctest");
+        File f = new File(AndroidTestUtils.assetFile(DoctestsTest.baseDirectory), "feature18enabled.doctest");
         String contents = DoctestsTest.loadFile(f);
         result.add(new Object[]{f.getName(), contents, -1});
         return result;
@@ -33,7 +35,7 @@ public class DoctestFeature18EnabledTest extends DoctestsTest {
 
     @Test
     public void runDoctest() {
-        ContextFactory contextFactory = new ContextFactory() {
+        ContextFactory contextFactory = new AndroidTestContextFactory() {
             @Override
             protected boolean hasFeature(Context cx, int featureIndex) {
                 if (featureIndex == Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE) {

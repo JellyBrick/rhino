@@ -17,7 +17,7 @@ public class MemberBoxCallTest {
 
     @Test
     public void testPrototypeProperty() {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             assertEquals("SUPERVAL",
                 evaluate(cx, 
@@ -36,7 +36,7 @@ public class MemberBoxCallTest {
 
     @Test
     public void testPropertyGetterName() {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             assertEquals("foo",
                 evaluate(cx, 
@@ -54,7 +54,7 @@ public class MemberBoxCallTest {
 
     @Test
     public void testPropertySetterName() {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             assertEquals("foo",
                 evaluate(cx, 

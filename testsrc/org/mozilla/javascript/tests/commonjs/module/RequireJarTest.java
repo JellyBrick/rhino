@@ -1,11 +1,12 @@
 package org.mozilla.javascript.tests.commonjs.module;
 
-import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -39,7 +40,7 @@ public class RequireJarTest extends RequireTest
 
     private Context createContext()
     {
-        final Context cx = Context.enter(); 
+        final Context cx = AndroidTestUtils.enterContext();
         cx.setOptimizationLevel(-1);
         return cx;
     }
@@ -50,7 +51,7 @@ public class RequireJarTest extends RequireTest
         final Context cx = createContext();
         final Scriptable scope = cx.initStandardObjects();
         final Require require = getSandboxedRequire(cx, scope, false);
-        final String jsFile = getClass().getResource("testNonSandboxed.js").toExternalForm();
+        final String jsFile = AndroidTestUtils.assetFile("testsrc/org/mozilla/javascript/tests/commonjs/module/testNonSandboxed.js").toURI().toString();
         ScriptableObject.putProperty(scope, "moduleUri", jsFile);
         require.requireMain(cx, "testNonSandboxed");
     }
@@ -87,8 +88,8 @@ public class RequireJarTest extends RequireTest
         }
     }
     
-    private Reader getReader(String name) {
-        return new InputStreamReader(getClass().getResourceAsStream(name));
+    private Reader getReader(String name) throws FileNotFoundException {
+        return AndroidTestUtils.assetReader("testsrc/org/mozilla/javascript/tests/commonjs/module/" + name);
     }
     
     private void testWithSandboxedRequire(String moduleId) throws Exception {
@@ -111,7 +112,7 @@ public class RequireJarTest extends RequireTest
     }
 
     private URI getDirectory() throws URISyntaxException {
-        final String jarFileLoc = getClass().getResource("modules.jar").toURI().toString();
+        final String jarFileLoc = AndroidTestUtils.assetFile("testsrc/org/mozilla/javascript/tests/commonjs/module/modules.jar").toURI().toString();
         String jarParent = "jar:" + jarFileLoc + "!/";
         return new URI(jarParent);
     }

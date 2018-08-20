@@ -4,7 +4,7 @@
 
 package org.mozilla.javascript.tests;
 
-import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.AndroidTestContextFactory;
 import org.mozilla.javascript.Script;
 
 import junit.framework.TestCase;
@@ -32,7 +32,7 @@ public class GeneratedClassNameTest extends TestCase
 	private void doTest(final String expectedName, final String scriptName)
 	    throws Exception
 	{
-	    final Script script = ContextFactory.getGlobal().call(cx -> cx.compileString("var f = 1", scriptName, 1, null));
+	    final Script script = new AndroidTestContextFactory().call(cx -> cx.compileString("var f = 1", scriptName, 1, null));
 
 	    // remove serial number
 	    String name = script.getClass().getSimpleName();

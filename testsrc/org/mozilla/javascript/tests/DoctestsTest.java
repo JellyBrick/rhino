@@ -14,6 +14,8 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mozilla.javascript.AndroidTestContextFactory;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.drivers.TestUtils;
@@ -45,7 +47,7 @@ public class DoctestsTest {
     }
 
     public static File[] getDoctestFiles() {
-        return TestUtils.recursiveListFiles(new File(baseDirectory),
+        return TestUtils.recursiveListFiles(AndroidTestUtils.assetFile(baseDirectory),
                 new FileFilter() {
                     public boolean accept(File f) {
                         String name = f.getName();
@@ -85,7 +87,7 @@ public class DoctestsTest {
 
     @Test
     public void runDoctest() throws Exception {
-        ContextFactory factory = ContextFactory.getGlobal();
+        ContextFactory factory = new AndroidTestContextFactory();
         Context cx = factory.enterContext();
         try {
             cx.setOptimizationLevel(optimizationLevel);

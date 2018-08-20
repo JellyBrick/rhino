@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
@@ -27,7 +28,7 @@ public class Bug714204Test {
 
     @Before
     public void setUp() {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         scope = cx.initStandardObjects();
         cx.setLanguageVersion(170);
     }

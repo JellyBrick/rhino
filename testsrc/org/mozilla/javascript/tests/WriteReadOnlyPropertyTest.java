@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestContextFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EcmaError;
@@ -51,7 +52,7 @@ public class WriteReadOnlyPropertyTest {
 
 		final String script = "foo.myProp = 123; foo.myProp";
 
-		final ContextFactory contextFactory = new ContextFactory() {
+		final ContextFactory contextFactory = new AndroidTestContextFactory() {
 			@Override
 			protected boolean hasFeature(final Context cx, final int featureIndex) {
 				if (Context.FEATURE_STRICT_MODE == featureIndex) {

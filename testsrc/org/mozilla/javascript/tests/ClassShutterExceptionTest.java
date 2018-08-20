@@ -9,6 +9,7 @@ package org.mozilla.javascript.tests;
 
 import junit.framework.TestCase;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ClassShutter;
@@ -31,7 +32,7 @@ public class ClassShutterExceptionTest extends TestCase {
     }
 
     public void helper(String source) {
-        Context cx = Context.enter();
+        Context cx = AndroidTestUtils.enterContext();
         Context.ClassShutterSetter setter = cx.getClassShutterSetter();
         try {
             Scriptable globalScope = cx.initStandardObjects();

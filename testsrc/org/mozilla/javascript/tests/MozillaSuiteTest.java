@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.drivers.JsTestsBase;
 import org.mozilla.javascript.drivers.ShellTest;
 import org.mozilla.javascript.drivers.TestUtils;
@@ -60,7 +61,7 @@ public class MozillaSuiteTest {
     public static File getTestDir() throws IOException {
         File testDir = null;
         if (System.getProperty("mozilla.js.tests") != null) {
-            testDir = new File(System.getProperty("mozilla.js.tests"));
+            testDir = AndroidTestUtils.assetFile(System.getProperty("mozilla.js.tests"));
         } else {
             URL url = JsTestsBase.class.getResource(".");
             String path = url.getFile();

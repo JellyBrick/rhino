@@ -15,6 +15,7 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.AndroidTestContextFactory;
 
 public class Bug421071Test extends TestCase {
     private ContextFactory factory;
@@ -63,7 +64,7 @@ public class Bug421071Test extends TestCase {
         thread.join();
     }
 
-    static class DynamicScopeContextFactory extends ContextFactory {
+    static class DynamicScopeContextFactory extends AndroidTestContextFactory {
         @Override
         public boolean hasFeature(Context cx, int featureIndex) {
             if (featureIndex == Context.FEATURE_DYNAMIC_SCOPE)

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Arrays;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.ContextFactory;
 
 public class TestUtils {
@@ -66,7 +67,7 @@ public class TestUtils {
         List<String> list = inherited == null ?
                 new ArrayList<String>() :
                 new ArrayList<String>(Arrays.asList(inherited));
-        InputStream in = JsTestsBase.class.getResourceAsStream(resource);
+        InputStream in = AndroidTestUtils.assetStream("testsrc/" + resource);
         if (in != null)
             addTestsFromStream(in, list);
         return list.toArray(new String[0]);

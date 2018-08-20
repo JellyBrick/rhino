@@ -6,10 +6,8 @@ package org.mozilla.javascript.tests;
 
 import org.junit.Assert;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.Context;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestContextFactory;
 
 public class Bug496585Test {
     public String method(String one, Function function) {
@@ -22,7 +20,7 @@ public class Bug496585Test {
 
     @Test
     public void callOverloadedFunction() {
-        new ContextFactory().call(cx -> {
+        new AndroidTestContextFactory().call(cx -> {
             cx.getWrapFactory().setJavaPrimitiveWrap(false);
             Assert.assertEquals("string[]", cx.evaluateString(
                     cx.initStandardObjects(),

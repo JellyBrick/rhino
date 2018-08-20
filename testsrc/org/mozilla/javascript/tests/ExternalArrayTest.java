@@ -3,6 +3,7 @@ package org.mozilla.javascript.tests;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ExternalArrayData;
 import org.mozilla.javascript.Scriptable;
@@ -12,7 +13,7 @@ import org.mozilla.javascript.typedarrays.NativeFloat64Array;
 import org.mozilla.javascript.typedarrays.NativeInt16Array;
 import org.mozilla.javascript.typedarrays.NativeInt32Array;
 
-import java.io.FileReader;
+import java.io.Reader;
 import java.io.IOException;
 
 import static org.junit.Assert.assertFalse;
@@ -25,7 +26,7 @@ public class ExternalArrayTest
     @Before
     public void init()
     {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         cx.setLanguageVersion(Context.VERSION_1_8);
         cx.setGeneratingDebug(true);
 
@@ -135,7 +136,7 @@ public class ExternalArrayTest
     {
         try {
             cx.setOptimizationLevel(opt);
-            FileReader rdr = new FileReader(script);
+            Reader rdr = AndroidTestUtils.assetReader(script);
 
             try {
                 cx.evaluateReader(root, rdr, script, 1, null);

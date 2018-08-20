@@ -9,6 +9,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.drivers.TestUtils;
 import org.mozilla.javascript.drivers.JsTestsBase;
 
@@ -18,7 +19,7 @@ public class JsTestsTest extends JsTestsBase {
     static final String jstestsExtension = ".jstest";
 
     public void runJsTests() throws IOException {
-        File[] tests = TestUtils.recursiveListFiles(new File(baseDirectory),
+        File[] tests = TestUtils.recursiveListFiles(AndroidTestUtils.assetFile(baseDirectory),
                 new FileFilter() {
                   public boolean accept(File f) {
                       return f.getName().endsWith(jstestsExtension);

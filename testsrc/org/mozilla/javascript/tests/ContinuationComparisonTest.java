@@ -6,16 +6,14 @@
 
 package org.mozilla.javascript.tests;
 
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Interpreter;
 import org.mozilla.javascript.NativeContinuation;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.ScriptableObject;
 
 public class ContinuationComparisonTest extends TestCase {
@@ -39,7 +37,7 @@ public class ContinuationComparisonTest extends TestCase {
         });
 
         // Evaluate program
-        try(Reader r = new InputStreamReader(getClass().getResourceAsStream("ContinuationComparisonTest.js"))) {
+        try(Reader r = AndroidTestUtils.assetReader("org/mozilla/javascript/tests/ContinuationComparisonTest.js")) {
             cx.executeScriptWithContinuations(cx.compileReader(r, "ContinuationComparisonTest.js", 1, null), global);
         }
         // Make the global standard again

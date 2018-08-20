@@ -41,7 +41,7 @@ public class Bug409702Test extends TestCase {
           "{ b: function () { return " + value + "; } });" +
           "instance.b();";
 
-      Context cx = ContextFactory.getGlobal().enterContext();
+      Context cx = AndroidTestUtils.enterContext();
       try {
           Scriptable scope = cx.initStandardObjects();
           Object result = cx.evaluateString(scope, source, "source", 1, null);

@@ -4,6 +4,7 @@
 
 package org.mozilla.javascript.tests;
 
+import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
@@ -18,7 +19,7 @@ import junit.framework.TestCase;
 public class Bug467396Test extends TestCase {
 
     public void testOverloadedVarargs() {
-        Context cx = ContextFactory.getGlobal().enterContext();
+        Context cx = AndroidTestUtils.enterContext();
         try {
             Scriptable scope = cx.initStandardObjects();
             Object result = unwrap(cx.evaluateString(scope,

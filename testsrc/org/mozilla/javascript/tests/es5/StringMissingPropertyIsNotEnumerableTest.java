@@ -1,7 +1,11 @@
 package org.mozilla.javascript.tests.es5;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.AndroidTestContextFactory;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.drivers.TestUtils;
 
 import static org.junit.Assert.assertFalse;
 import static org.mozilla.javascript.tests.Evaluator.eval;
@@ -13,6 +17,16 @@ import static org.mozilla.javascript.tests.Evaluator.eval;
  * @see <a href="https://github.com/mozilla/rhino/issues/415">https://github.com/mozilla/rhino/issues/415</a>
  */
 public class StringMissingPropertyIsNotEnumerableTest {
+
+  @Before
+  public void setUp() {
+    TestUtils.setGlobalContextFactory(new AndroidTestContextFactory());
+  }
+
+  @After
+  public void tearDown() {
+    TestUtils.setGlobalContextFactory(null);
+  }
 
   @Test
   public void testStringMissingPropertyIsNotEnumerable() {

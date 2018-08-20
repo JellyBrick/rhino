@@ -22,7 +22,7 @@ public class ObjectToStringNullUndefinedTest {
 
     @Before
     public void setUp() {
-        cx = Context.enter();
+        cx = AndroidTestUtils.enterContext();
         cx.setLanguageVersion(200);
         scope = cx.initStandardObjects();
     }
