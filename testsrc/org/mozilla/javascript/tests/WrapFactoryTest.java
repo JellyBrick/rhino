@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.mozilla.javascript.AndroidTestUtils;
@@ -90,6 +89,22 @@ public class WrapFactoryTest {
           ScriptableObject.getProperty(scope, "getResult"));
     } finally {
       Context.exit();
+    }
+  }
+
+  public static class Optional<T> {
+    private final T value;
+
+    private Optional(T value) {
+      this.value = value;
+    }
+
+    public T get() {
+      return value;
+    }
+
+    public static <T> Optional<T> of(T value) {
+      return new Optional<>(value);
     }
   }
 }
