@@ -31,3 +31,5 @@ android {
 dependencies {
     implementation "com.android.support:support-annotations:${support_library_version}"
 }
+
+apply from: rootProject.file('android-maven-gradle.gradle')

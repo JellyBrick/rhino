@@ -29,3 +29,5 @@ dependencies {
     implementation "com.android.support:support-annotations:${support_library_version}"
     implementation "com.jakewharton.android.repackaged:dalvik-dx:${dalvik_dx_version}"
 }
+
+apply from: rootProject.file('android-maven-gradle.gradle')
