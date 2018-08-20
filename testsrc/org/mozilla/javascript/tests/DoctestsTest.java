@@ -36,6 +36,10 @@ import static org.junit.Assert.*;
 public class DoctestsTest {
     static final String baseDirectory = "testsrc" + File.separator + "doctests";
     static final String doctestsExtension = ".doctest";
+    static final List<String> ignoreDoctests = Arrays.asList(
+            // org.apache.harmony.xml.dom.ElementImpl isn't serializable
+            "442922.doctest"
+    );
     String name;
     String source;
     int optimizationLevel;
@@ -51,7 +55,7 @@ public class DoctestsTest {
                 new FileFilter() {
                     public boolean accept(File f) {
                         String name = f.getName();
-                        return !name.contains("feature18enabled") && name.endsWith(doctestsExtension);
+                        return !name.contains("feature18enabled") && name.endsWith(doctestsExtension) && !ignoreDoctests.contains(name);
                     }
             });
     }
