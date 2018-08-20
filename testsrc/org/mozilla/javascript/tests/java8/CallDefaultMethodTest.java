@@ -4,9 +4,11 @@
 
 package org.mozilla.javascript.tests.java8;
 
+import org.junit.Ignore;
 import org.mozilla.javascript.drivers.RhinoTest;
 import org.mozilla.javascript.drivers.ScriptTestsBase;
 
+@Ignore // DefaultMethod doesn't works on Android
 @RhinoTest("testsrc/jstests/java8/call-default-method.js")
 public class CallDefaultMethodTest extends ScriptTestsBase
 {

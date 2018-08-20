@@ -4,6 +4,7 @@
 
 package org.mozilla.javascript.tests;
 
+import org.junit.Ignore;
 import org.mozilla.javascript.AndroidTestUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
@@ -16,6 +17,7 @@ import junit.framework.TestCase;
  * See https://bugzilla.mozilla.org/show_bug.cgi?id=460726
  * @author Marc Guillemot
  */
+@Ignore // readCurrentFunctionJavaName() isn't stable on Android
 public class GeneratedMethodNameTest extends TestCase
 {
 	public void testStandardFunction() throws Exception {
