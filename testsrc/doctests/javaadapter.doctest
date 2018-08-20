@@ -78,7 +78,7 @@ js> x.get(2)
 3.0
 js> // test implementing an interface
 js> x = new java.util.List({get: function(i) { return i + 1; }, toString: function() { return "[]"; }})
-[]
+Proxy[[object Object]]
 js> x.get(0)
 1.0
 js> x.get(1)
