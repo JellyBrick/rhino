@@ -25,7 +25,6 @@ e4x/GC/regress-324117.js
 e4x/Namespace/13.2.1.js
 e4x/Namespace/13.2.2.js
 e4x/Namespace/13.2.5.js
-e4x/Namespace/regress-283972.js
 e4x/Namespace/regress-292863.js
 e4x/Namespace/regress-350442.js
 e4x/Namespace/regress-444608-02.js
@@ -43,7 +42,6 @@ e4x/Regress/regress-263936.js
 e4x/Regress/regress-264369.js
 e4x/Regress/regress-271545.js
 e4x/Regress/regress-277650.js
-e4x/Regress/regress-277664.js
 e4x/Regress/regress-277683.js
 e4x/Regress/regress-277779.js
 e4x/Regress/regress-277935.js
@@ -102,7 +100,6 @@ e4x/TypeConversion/10.3.js
 e4x/TypeConversion/10.4.1.js
 e4x/TypeConversion/10.4.js
 e4x/Types/9.1.1.1.js
-e4x/Types/9.1.1.2.js
 e4x/Types/9.1.1.3.js
 e4x/Types/9.1.1.6.js
 e4x/Types/9.2.1.1.js
@@ -131,7 +128,6 @@ e4x/XML/13.4.4.27.js
 e4x/XML/13.4.4.29.js
 e4x/XML/13.4.4.3.js
 e4x/XML/13.4.4.30.js
-e4x/XML/13.4.4.31.js
 e4x/XML/13.4.4.32-01.js
 e4x/XML/13.4.4.32.js
 e4x/XML/13.4.4.33.js
