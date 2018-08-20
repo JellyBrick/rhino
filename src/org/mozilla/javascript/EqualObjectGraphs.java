@@ -16,8 +16,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.mozilla.javascript.debug.DebuggableObject;
-import org.mozilla.rhino.android.Function;
-import org.mozilla.rhino.android.Objects;
+import org.mozilla.rhino.Function;
+import org.mozilla.rhino.Objects;
 
 /**
  * An object that implements deep equality test of objects, including their 

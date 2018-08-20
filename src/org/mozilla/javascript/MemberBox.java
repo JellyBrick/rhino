@@ -6,7 +6,7 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.rhino.android.Executables;
+import org.mozilla.rhino.Executables;
 
 import java.lang.reflect.*;
 import java.io.*;

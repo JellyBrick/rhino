@@ -1,0 +1,11 @@
+include ":rhino"
+project(":rhino").projectDir = new File("android/rhino")
+
+include ":rhino-xml"
+project(":rhino-xml").projectDir = new File("android/rhino-xml")
+
+include ":rhino-dex"
+project(":rhino-dex").projectDir = new File("android/rhino-dex")
+
+include ":rhino-test"
+project(":rhino-test").projectDir = new File("android/rhino-test")

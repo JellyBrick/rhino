@@ -1,0 +1,31 @@
+apply plugin: "com.android.library"
+
+android {
+    compileSdkVersion "${target_sdk_version}".toInteger()
+
+    defaultConfig {
+        minSdkVersion "${mini_sdk_version}".toInteger()
+        targetSdkVersion "${target_sdk_version}".toInteger()
+        versionCode "${project_version_code}".toInteger()
+        versionName "${project_version_name}"
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs "${rootProject.projectDir}/rhino-dex/src/main/java"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation project(":rhino")
+    implementation "com.android.support:support-annotations:${support_library_version}"
+    implementation "com.jakewharton.android.repackaged:dalvik-dx:${dalvik_dx_version}"
+}

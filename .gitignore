@@ -25,4 +25,5 @@ test262
 bin/
 .settings/
 
+testassets
 local.properties

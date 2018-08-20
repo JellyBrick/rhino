@@ -1,4 +1,4 @@
-package org.mozilla.rhino.android;
+package org.mozilla.rhino;
 
 public class Objects {
 

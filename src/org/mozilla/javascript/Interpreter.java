@@ -15,7 +15,7 @@ import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.ScriptRuntime.NoSuchMethodShim;
 import org.mozilla.javascript.debug.DebugFrame;
-import org.mozilla.rhino.android.Objects;
+import org.mozilla.rhino.Objects;
 
 import static org.mozilla.javascript.UniqueTag.DOUBLE_MARK;
 

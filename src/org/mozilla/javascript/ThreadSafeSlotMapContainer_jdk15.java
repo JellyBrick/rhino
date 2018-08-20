@@ -2,7 +2,7 @@ package org.mozilla.javascript;
 
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.mozilla.rhino.android.BuildConfig;
+import org.mozilla.rhino.BuildConfig;
 
 public class ThreadSafeSlotMapContainer_jdk15 extends SlotMapContainer {
 

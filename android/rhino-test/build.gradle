@@ -1,0 +1,84 @@
+import java.util.zip.CRC32
+
+apply plugin: "com.android.library"
+
+android {
+    compileSdkVersion "${target_sdk_version}".toInteger()
+
+    defaultConfig {
+        minSdkVersion "${mini_sdk_version}".toInteger()
+        targetSdkVersion "${target_sdk_version}".toInteger()
+        versionCode "${project_version_code}".toInteger()
+        versionName "${project_version_name}"
+        testInstrumentationRunner "org.mozilla.javascript.RhinoAndroidJUnitRunner"
+    }
+
+    sourceSets {
+        androidTest {
+            java {
+                srcDirs "${rootProject.projectDir}/toolsrc",
+                        "${rootProject.projectDir}/testsrc",
+                        "${rootProject.projectDir}/examples"
+                exclude "org/mozilla/javascript/tools/debugger/**",
+                        "org/mozilla/javascript/tools/shell/ConsoleTextArea.java",
+                        "org/mozilla/javascript/tools/shell/JSConsole.java",
+                        "org/mozilla/javascript/tools/idswitch/**",
+                        "tests/**",
+                        "org/mozilla/javascript/benchmarks/**"
+            }
+            resources {
+                srcDirs "${rootProject.projectDir}/toolsrc",
+                        "${rootProject.projectDir}/estsrc"
+                include "**/*.properties"
+            }
+            assets {
+                srcDirs "${rootProject.projectDir}/testassets"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    androidTestImplementation project(":rhino")
+    androidTestImplementation project(":rhino-xml")
+    androidTestImplementation project(":rhino-dex")
+    androidTestImplementation "junit:junit:${junit_version}"
+    androidTestImplementation "com.android.support.test:runner:${android_test_runner_version}"
+    androidTestImplementation "org.yaml:snakeyaml:${snake_yaml_version}"
+    androidTestImplementation "net.lingala.zip4j:zip4j:${zip4j_version}"
+    androidTestImplementation "commons-io:commons-io:${commons_io_version}"
+}
+
+task bundleTestAssets(type: Zip) {
+    doFirst {
+        delete "${rootProject.projectDir}/testassets"
+        file("${rootProject.projectDir}/testassets").mkdirs()
+    }
+
+    from "${rootProject.projectDir}/testsrc", "${rootProject.projectDir}/test262"
+    include "**/*.js", "**/*.doctest", "**/*.jar", "**/*.tests", "test262.properties"
+    archiveName "testassets.zip"
+    destinationDir file("${rootProject.projectDir}/testassets")
+
+    doLast {
+        File testassets = file("${rootProject.projectDir}/testassets/testassets.zip")
+        CRC32 crc32 = new CRC32()
+        testassets.eachByte 4096, { bytes, size ->
+            crc32.update(bytes, 0, size)
+        }
+        testassets.renameTo(file("${rootProject.projectDir}/testassets/testassets-${crc32.getValue()}.zip"))
+    }
+}
+
+project.afterEvaluate {
+    generateDebugAndroidTestAssets.dependsOn bundleTestAssets
+}
+
+clean {
+    delete "${rootProject.projectDir}/testassets"
+}
