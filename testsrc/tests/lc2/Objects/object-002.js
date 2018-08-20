@@ -109,7 +109,7 @@ javaval.jsclass );
   // Check the JavaClass, which should be the same as the result as Class.forName(description).
   new TestCase( SECTION,
 		testval.description +".getClass().equals( " +
-		"java.lang.Class.forName( '" + testval.classname +
+		"org.mozilla.javascript.AndroidTestUtils.forName( '" + testval.classname +
 		"' ) )",
 		true,
 		javaval.javaclass.equals( testval.javaclass ) );
@@ -128,6 +128,6 @@ function TestValue( description, classname ) {
   this.classname = classname;
   this.type =  E_TYPE;
   this.jsclass = E_JSCLASS;
-  this.javaclass = java.lang.Class.forName( classname );
+  this.javaclass = org.mozilla.javascript.AndroidTestUtils.forName( classname );
   return this;
 }

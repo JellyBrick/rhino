@@ -45,10 +45,10 @@ var size = rect.getSize();
 new TestCase(
   SECTION,
   "var size = (new java.awt.Rectangle(1,2,3,4)).getSize(); "+
-  "size.getClass().equals(java.lang.Class.forName(\""+
+  "size.getClass().equals(org.mozilla.javascript.AndroidTestUtils.forName(\""+
   "java.awt.Dimension\"))",
   true,
-  size.getClass().equals(java.lang.Class.forName("java.awt.Dimension")));
+  size.getClass().equals(org.mozilla.javascript.AndroidTestUtils.forName("java.awt.Dimension")));
 
 new TestCase(
   SECTION,
@@ -80,9 +80,9 @@ s = string.trim()
     SECTION,
     "var string = new java.lang.String(\"     hello     \"); "+
     "var s = string.trim(); s.getClass().equals("+
-    "java.lang.Class.forName(\"java.lang.String\")",
+    "org.mozilla.javascript.AndroidTestUtils.forName(\"java.lang.String\")",
     true,
-    s.getClass().equals(java.lang.Class.forName("java.lang.String")) );
+    s.getClass().equals(org.mozilla.javascript.AndroidTestUtils.forName("java.lang.String")) );
 
 // method returns an int
 new TestCase(
@@ -108,7 +108,7 @@ function CompareValues( javaval, testval ) {
   // Check the JavaClass, which should be the same as the result as Class.forName(description).
   new TestCase( SECTION,
 		testval.description +".getClass().equals( " +
-		"java.lang.Class.forName( '" + testval.classname +
+		"org.mozilla.javascript.AndroidTestUtils.forName( '" + testval.classname +
 		"' ) )",
 		true,
 		javaval.javaclass.equals( testval.javaclass ) );
@@ -126,6 +126,6 @@ function TestValue( description, classname ) {
   this.classname = classname;
   this.type =  E_TYPE;
   this.jsclass = E_JSCLASS;
-  this.javaclass = java.lang.Class.forName( classname );
+  this.javaclass = org.mozilla.javascript.AndroidTestUtils.forName( classname );
   return this;
 }

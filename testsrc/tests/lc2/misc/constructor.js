@@ -64,8 +64,8 @@ function test_typeof( eType, someObject ) {
  */
 function test_class( eClass, javaObject ) {
   new TestCase( SECTION,
-		javaObject +".getClass().equals( java.lang.Class.forName( " +
+		javaObject +".getClass().equals( org.mozilla.javascript.AndroidTestUtils.forName( " +
 		eClass +")",
 		true,
-		(javaObject.getClass()).equals( java.lang.Class.forName(eClass)) );
+		(javaObject.getClass()).equals( org.mozilla.javascript.AndroidTestUtils.forName(eClass)) );
 }

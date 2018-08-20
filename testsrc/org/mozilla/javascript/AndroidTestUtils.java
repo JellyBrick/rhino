@@ -56,6 +56,10 @@ public class AndroidTestUtils {
         return new AndroidTestContextFactory().enterContext();
     }
 
+    public static Class<?> forName(String className) throws ClassNotFoundException {
+        return Class.forName(className);
+    }
+
     public static File tempFile(String filename) {
         return new File(tempDir, filename);
     }

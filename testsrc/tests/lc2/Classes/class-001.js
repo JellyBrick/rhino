@@ -108,7 +108,7 @@ function TestValue( description, value ) {
   this.description = description;
   this.type =  E_TYPE;
   this.jclass = E_JSCLASS;
-  this.lcclass = java.lang.Class.forName( description );
+  this.lcclass = org.mozilla.javascript.AndroidTestUtils.forName( description );
 
   this.classname = "[JavaClass " +
     (  ( description.substring(0,9) == "Packages." )

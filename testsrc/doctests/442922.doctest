@@ -8,5 +8,5 @@ js> deserialize("x.ser");
 <blah x="asdf">
   <a a="asdf"/>
 </blah>
-js> (new java.io.File("x.ser"))["delete"]();
+js> (org.mozilla.javascript.AndroidTestUtils.tempFile("x.ser"))["delete"]();
 true

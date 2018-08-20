@@ -10,5 +10,5 @@ js> uneval(obj)
 ({a:3, b:"hi", 9:"nine", 12:1200})
 js> uneval(obj2)
 ({a:3, b:"hi", 9:"nine", 12:1200})
-js> (new java.io.File("foo.bin"))["delete"]();
+js> (org.mozilla.javascript.AndroidTestUtils.tempFile("foo.bin"))["delete"]();
 true
