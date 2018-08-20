@@ -61,7 +61,7 @@ task bundleTestAssets(type: Zip) {
     }
 
     from "${rootProject.projectDir}/testsrc", "${rootProject.projectDir}/test262"
-    include "**/*.js", "**/*.doctest", "**/*.jar", "**/*.tests", "test262.properties"
+    include "**/*.js", "**/*.doctest", "**/*.jar", "**/*.tests", "**/*.skip", "test262.properties"
     archiveName "testassets.zip"
     destinationDir file("${rootProject.projectDir}/testassets")
 
