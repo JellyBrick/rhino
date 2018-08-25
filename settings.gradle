@@ -1,0 +1,2 @@
+include ":rhino"
+project(":rhino").projectDir = new File("projects/rhino")

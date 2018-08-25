@@ -1,0 +1,22 @@
+apply plugin: "java"
+apply plugin: "ru.vyarus.animalsniffer"
+
+sourceSets {
+    main {
+        java {
+            srcDirs "${rootProject.projectDir}/src"
+        }
+        resources {
+            srcDirs "${rootProject.projectDir}/src"
+            include "**/*.properties"
+        }
+    }
+}
+
+dependencies {
+    signature "org.codehaus.mojo.signature:java16:1.1@signature"
+    signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4"
+}
+
+test.dependsOn animalsnifferMain
+test.dependsOn animalsnifferTest
