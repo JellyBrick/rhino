@@ -9,6 +9,8 @@ package org.mozilla.javascript;
 import java.lang.reflect.*;
 import java.io.*;
 
+import org.mozilla.rhino.Executables;
+
 /**
  * Wrappper class for Method and Constructor instances to cache
  * getParameterTypes() results, recover from IllegalAccessException
@@ -21,7 +23,7 @@ final class MemberBox implements Serializable
 {
     static final long serialVersionUID = 6358550398665688245L;
 
-    private transient Executable memberObject;
+    private transient AccessibleObject memberObject;
     Object delegateTo;
 
     MemberBox(Executable executable)
@@ -29,14 +31,14 @@ final class MemberBox implements Serializable
         this.memberObject = executable;
     }
 
-    Executable member()
+    AccessibleObject member()
     {
         return memberObject;
     }
 
     Class<?>[] argTypes()
     {
-        return memberObject.getParameterTypes();
+        return Executables.getParameterTypes(memberObject);
     }
 
     Class<?> getReturnType()
@@ -46,7 +48,7 @@ final class MemberBox implements Serializable
 
     boolean vararg()
     {
-        return memberObject.isVarArgs();
+        return Executables.isVarArgs(memberObject);
     }
 
     boolean isMethod()
@@ -61,17 +63,17 @@ final class MemberBox implements Serializable
 
     boolean isStatic()
     {
-        return Modifier.isStatic(memberObject.getModifiers());
+        return Modifier.isStatic(Executables.getModifiers(memberObject));
     }
 
     String getName()
     {
-        return memberObject.getName();
+        return Executables.getName(memberObject);
     }
 
     Class<?> getDeclaringClass()
     {
-        return memberObject.getDeclaringClass();
+        return Executables.getDeclaringClass(memberObject);
     }
 
     String toJavaDeclaration()
@@ -80,9 +82,9 @@ final class MemberBox implements Serializable
         if (isMethod()) {
             sb.append(getReturnType());
             sb.append(' ');
-            sb.append(memberObject.getName());
+            sb.append(getName());
         } else {
-            String name = memberObject.getDeclaringClass().getName();
+            String name = getDeclaringClass().getName();
             int lastDot = name.lastIndexOf('.');
             if (lastDot >= 0) {
                 name = name.substring(lastDot + 1);
@@ -208,7 +210,7 @@ final class MemberBox implements Serializable
      * information about the class, the name, and the parameters and
      * recreate upon deserialization.
      */
-    private static void writeMember(ObjectOutputStream out, Executable member)
+    private static void writeMember(ObjectOutputStream out, AccessibleObject member)
         throws IOException
     {
         if (member == null) {
@@ -219,15 +221,15 @@ final class MemberBox implements Serializable
         if (!(member instanceof Method || member instanceof Constructor))
             throw new IllegalArgumentException("not Method or Constructor");
         out.writeBoolean(member instanceof Method);
-        out.writeObject(member.getName());
-        out.writeObject(member.getDeclaringClass());
-        writeParameters(out, member.getParameterTypes());
+        out.writeObject(Executables.getName(member));
+        out.writeObject(Executables.getDeclaringClass(member));
+        writeParameters(out, Executables.getParameterTypes(member));
     }
 
     /**
      * Reads a Method or a Constructor from the stream.
      */
-    private static Executable readMember(ObjectInputStream in)
+    private static AccessibleObject readMember(ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
         if (!in.readBoolean())

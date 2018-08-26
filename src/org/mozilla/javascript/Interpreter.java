@@ -9,13 +9,13 @@ package org.mozilla.javascript;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.ScriptRuntime.NoSuchMethodShim;
 import org.mozilla.javascript.debug.DebugFrame;
+import org.mozilla.rhino.Objects;
 
 import static org.mozilla.javascript.UniqueTag.DOUBLE_MARK;
 
@@ -289,7 +289,7 @@ public final class Interpreter extends Icode implements Evaluator
     }
 
     private static boolean compareIdata(InterpreterData i1, InterpreterData i2) {
-        return i1 == i2 || Objects.equals(getEncodedSource(i1), getEncodedSource(i2)); 
+        return i1 == i2 || Objects.equals(getEncodedSource(i1), getEncodedSource(i2));
     }
     
     private static final class ContinuationJump implements Serializable

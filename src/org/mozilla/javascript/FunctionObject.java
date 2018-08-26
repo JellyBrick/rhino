@@ -234,7 +234,7 @@ public class FunctionObject extends BaseFunction
     /**
      * Get Java method or constructor this function represent.
      */
-    public Executable getMethodOrConstructor()
+    public AccessibleObject getMethodOrConstructor()
     {
         return member.member();
     }

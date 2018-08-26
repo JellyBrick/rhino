@@ -10,7 +10,13 @@ package org.mozilla.javascript;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import org.mozilla.javascript.jdk15.VMBridge_jdk15;
+import org.mozilla.javascript.jdk18.VMBridge_jdk18;
+import org.mozilla.rhino.Platform;
 
 public abstract class VMBridge
 {
@@ -19,19 +25,22 @@ public abstract class VMBridge
 
     private static VMBridge makeInstance()
     {
-        String[] classNames = {
-            "org.mozilla.javascript.VMBridge_custom",
-            "org.mozilla.javascript.jdk18.VMBridge_jdk18",
-            "org.mozilla.javascript.jdk15.VMBridge_jdk15",
-        };
-        for (int i = 0; i != classNames.length; ++i) {
-            String className = classNames[i];
-            Class<?> cl = Kit.classOrNull(className);
-            if (cl != null) {
-                VMBridge bridge = (VMBridge)Kit.newInstanceOrNull(cl);
-                if (bridge != null) {
-                    return bridge;
-                }
+        List<Class<?>> classNames = new ArrayList<>(3);
+
+        Class<?> custom = Kit.classOrNull("org.mozilla.javascript.VMBridge_custom");
+        if (custom != null) {
+            classNames.add(custom);
+        }
+        if (Platform.atLeastJava8()) {
+            classNames.add(VMBridge_jdk18.class);
+        }
+        classNames.add(VMBridge_jdk15.class);
+
+        for (int i = 0; i != classNames.size(); ++i) {
+            Class<?> cl = classNames.get(i);
+            VMBridge bridge = (VMBridge)Kit.newInstanceOrNull(cl);
+            if (bridge != null) {
+                return bridge;
             }
         }
         throw new IllegalStateException("Failed to create VMBridge instance");

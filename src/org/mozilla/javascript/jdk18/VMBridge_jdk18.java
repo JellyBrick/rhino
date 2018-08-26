@@ -8,12 +8,15 @@ package org.mozilla.javascript.jdk18;
 
 import java.lang.reflect.Method;
 
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
+
 public class VMBridge_jdk18 extends org.mozilla.javascript.jdk15.VMBridge_jdk15
 {
     public VMBridge_jdk18() throws SecurityException, InstantiationException {
         super();
     }
 
+    @IgnoreJRERequirement
     @Override
     public boolean isDefaultMethod(Method method) {
         return method.isDefault();

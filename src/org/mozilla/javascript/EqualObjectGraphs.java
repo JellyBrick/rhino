@@ -11,12 +11,12 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.mozilla.javascript.debug.DebuggableObject;
+import org.mozilla.rhino.Objects;
 
 /**
  * An object that implements deep equality test of objects, including their 
@@ -47,7 +47,7 @@ final class EqualObjectGraphs  {
     // Currently compared objects; used to avoid infinite recursion over cyclic object graphs.
     private final Map<Object, Object> currentlyCompared = new IdentityHashMap<>();
     
-    static <T> T withThreadLocal(java.util.function.Function<EqualObjectGraphs, T> action) {
+    static <T> T withThreadLocal(org.mozilla.rhino.Function<EqualObjectGraphs, T> action) {
         final EqualObjectGraphs currEq = instance.get();
         if (currEq == null) {
             final EqualObjectGraphs eq = new EqualObjectGraphs();

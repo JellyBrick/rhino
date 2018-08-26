@@ -1,7 +1,8 @@
 package org.mozilla.javascript;
 
-import java.util.Collections;
 import java.util.Iterator;
+
+import org.mozilla.rhino.Collections;
 
 public class NativeCollectionIterator
     extends ES6Iterator

@@ -2,6 +2,8 @@ package org.mozilla.javascript;
 
 import java.util.Iterator;
 
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
+
 public class NativeMap
     extends IdScriptableObject
 {
@@ -145,6 +147,7 @@ public class NativeMap
      * If an "iterable" object was passed to the constructor, there are many many things
      * to do...
      */
+    @IgnoreJRERequirement
     private void js_load(Context cx, Scriptable scope, Object arg1)
     {
         if ((arg1 == null) || Undefined.instance.equals(arg1)) {

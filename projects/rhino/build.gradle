@@ -14,8 +14,9 @@ sourceSets {
 }
 
 dependencies {
-    signature "org.codehaus.mojo.signature:java16:1.1@signature"
-    signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4"
+    compileOnly "com.google.android:android:4.1.1.4"
+    compileOnly "org.codehaus.mojo:animal-sniffer-annotations:1.17"
+    signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"
 }
 
 test.dependsOn animalsnifferMain

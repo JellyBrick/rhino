@@ -8,6 +8,7 @@ package org.mozilla.javascript;
 
 import java.util.Iterator;
 import java.util.concurrent.locks.StampedLock;
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 import org.mozilla.javascript.ScriptableObject.Slot;
 import org.mozilla.javascript.ScriptableObject.SlotAccess;
 
@@ -15,6 +16,7 @@ import org.mozilla.javascript.ScriptableObject.SlotAccess;
  * This class extends the SlotMapContainer so that we have thread-safe access to all
  * the properties of an object.
  */
+@IgnoreJRERequirement
 class ThreadSafeSlotMapContainer
   extends SlotMapContainer {
 

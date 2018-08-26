@@ -10,6 +10,8 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.mozilla.rhino.Executables;
+
 /**
  * This class reflects Java methods into the JavaScript environment and
  * handles overloading of methods.
@@ -138,7 +140,7 @@ public class NativeJavaMethod extends BaseFunction
 
         int index = findCachedFunction(cx, args);
         if (index < 0) {
-            Class<?> c = methods[0].member().getDeclaringClass();
+            Class<?> c = Executables.getDeclaringClass(methods[0].member());
             String sig = c.getName() + '.' + getFunctionName() + '(' +
                          scriptSignature(args) + ')';
             throw Context.reportRuntimeError1("msg.java.no_such_method", sig);
@@ -358,13 +360,13 @@ public class NativeJavaMethod extends BaseFunction
                     }
                     MemberBox bestFit = methodsOrCtors[bestFitIndex];
                     if (cx.hasFeature(Context.FEATURE_ENHANCED_JAVA_ACCESS) &&
-                        (bestFit.member().getModifiers() & Modifier.PUBLIC) !=
-                            (member.member().getModifiers() & Modifier.PUBLIC))
+                        (Executables.getModifiers(bestFit.member()) & Modifier.PUBLIC) !=
+                            (Executables.getModifiers(member.member()) & Modifier.PUBLIC))
                     {
                         // When FEATURE_ENHANCED_JAVA_ACCESS gives us access
                         // to non-public members, continue to prefer public
                         // methods in overloading
-                        if ((bestFit.member().getModifiers() & Modifier.PUBLIC) == 0)
+                        if ((Executables.getModifiers(bestFit.member()) & Modifier.PUBLIC) == 0)
                             ++betterCount;
                         else
                             ++worseCount;

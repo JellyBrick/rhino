@@ -31,6 +31,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 import org.mozilla.javascript.annotations.JSStaticFunction;
+import org.mozilla.rhino.Platform;
 
 /**
  * This is the default implementation of the Scriptable interface. This
@@ -249,7 +250,7 @@ public abstract class ScriptableObject implements Scriptable,
             String fName = name == null ? "f" : name.toString();
             if (getter != null) {
                 if ( getter instanceof MemberBox ) {
-                    desc.defineProperty("get", new FunctionObject(fName, ((MemberBox)getter).member(), scope), EMPTY);
+                    desc.defineProperty("get", new FunctionObject(fName, (Member) ((MemberBox)getter).member(), scope), EMPTY);
                 } else if ( getter instanceof Member ) {
                     desc.defineProperty("get", new FunctionObject(fName, (Member)getter, scope), EMPTY);
                 } else {
@@ -258,7 +259,7 @@ public abstract class ScriptableObject implements Scriptable,
             }
             if (setter != null) {
                 if ( setter instanceof MemberBox ) {
-                    desc.defineProperty("set", new FunctionObject(fName, ((MemberBox) setter).member(), scope), EMPTY);
+                    desc.defineProperty("set", new FunctionObject(fName, (Member) ((MemberBox) setter).member(), scope), EMPTY);
                 } else if ( setter instanceof Member ) {
                     desc.defineProperty("set", new FunctionObject(fName, (Member) setter, scope), EMPTY);
                 } else {
@@ -366,7 +367,11 @@ public abstract class ScriptableObject implements Scriptable,
     {
         Context cx = Context.getCurrentContext();
         if ((cx != null) && cx.hasFeature(Context.FEATURE_THREAD_SAFE_OBJECTS)) {
-            return new ThreadSafeSlotMapContainer(initialSize);
+            if (Platform.atLeastJava8()) {
+                return new ThreadSafeSlotMapContainer(initialSize);
+            } else {
+                return new ThreadSafeSlotMapContainer_jdk15(initialSize);
+            }
         }
         return new SlotMapContainer(initialSize);
     }
