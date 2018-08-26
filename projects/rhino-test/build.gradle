@@ -1,0 +1,64 @@
+apply plugin: "java"
+
+sourceSets {
+    test {
+        java {
+            srcDirs "${rootProject.projectDir}/testsrc", "${rootProject.projectDir}/examples"
+            exclude "tests/**"
+        }
+        resources {
+            srcDirs "${rootProject.projectDir}/testsrc"
+        }
+    }
+}
+
+dependencies {
+    implementation project(":rhino")
+    implementation project(":rhino-xml")
+    implementation project(":rhino-tools")
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.yaml:snakeyaml:1.21"
+    testImplementation "net.trajano.caliper:caliper:1.2.1"
+}
+
+test {
+    useJUnit()
+    exclude "**/benchmarks/**"
+    systemProperty "java.awt.headless", "true"
+    systemProperty "mozilla.js.tests", "testsrc/tests"
+    systemProperty "mozilla.js.tests.timeout", 60000
+    systemProperty "user.language", "en"
+    systemProperty "user.country", "US"
+    systemProperty "user.timezone", "America/Los_Angeles"
+    systemProperty "file.encoding", "UTF-8"
+    maxHeapSize = "256m"
+    testLogging.showStandardStreams = true
+    // Many tests do not clean up contexts properly. This makes the tests much
+    // more resilient at the expense of performance.
+    forkEvery = 1
+    maxParallelForks = 10
+    // The workingDir of the original rhino test is the root of the project
+    workingDir "${rootProject.projectDir}"
+}
+
+task sunSpiderBenchmark(type: JavaExec) {
+    main "com.google.caliper.runner.CaliperMain"
+    systemProperty 'rhino.benchmark.report', "${buildDir.absolutePath}"
+    args "-Cresults.upload.class=org.mozilla.javascript.benchmarks.ResultPlotter", "-i", "runtime", "org.mozilla.javascript.benchmarks.CaliperSpiderBenchmark.Spider"
+    classpath sourceSets.test.runtimeClasspath
+    workingDir "${rootProject.projectDir}"
+}
+
+task v8Benchmark(type: Test) {
+    include "**/benchmarks/V8Benchmark*"
+    systemProperty 'rhino.benchmark.report', "${buildDir.absolutePath}"
+    systemProperty 'file.encoding', 'UTF-8'
+    workingDir = file("${rootProject.projectDir}/testsrc/benchmarks")
+    maxHeapSize = "256m"
+    testLogging.showStandardStreams = true
+    forkEvery = 1
+}
+
+task testBenchmark() {}
+testBenchmark.dependsOn sunSpiderBenchmark
+testBenchmark.dependsOn v8Benchmark

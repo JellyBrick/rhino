@@ -1,0 +1,17 @@
+apply plugin: "java"
+
+sourceSets {
+    main {
+        java {
+            srcDirs "${rootProject.projectDir}/toolsrc"
+        }
+        resources {
+            srcDirs "${rootProject.projectDir}/toolsrc"
+            include "**/*.properties"
+        }
+    }
+}
+
+dependencies {
+    implementation project(":rhino")
+}

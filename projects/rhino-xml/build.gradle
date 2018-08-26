@@ -1,0 +1,23 @@
+apply plugin: "java"
+apply plugin: "ru.vyarus.animalsniffer"
+
+sourceSets {
+    main {
+        java {
+            srcDirs "${rootProject.projectDir}/xmlimplsrc"
+        }
+        resources {
+            srcDirs "${rootProject.projectDir}/xmlimplsrc"
+            include "**/*.properties"
+        }
+    }
+}
+
+dependencies {
+    implementation project(":rhino")
+    compileOnly "org.codehaus.mojo:animal-sniffer-annotations:1.17"
+    signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"
+}
+
+test.dependsOn animalsnifferMain
+test.dependsOn animalsnifferTest

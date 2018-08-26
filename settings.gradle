@@ -1,2 +1,11 @@
 include ":rhino"
 project(":rhino").projectDir = new File("projects/rhino")
+
+include ":rhino-xml"
+project(":rhino-xml").projectDir = new File("projects/rhino-xml")
+
+include ":rhino-tools"
+project(":rhino-tools").projectDir = new File("projects/rhino-tools")
+
+include ":rhino-test"
+project(":rhino-test").projectDir = new File("projects/rhino-test")
