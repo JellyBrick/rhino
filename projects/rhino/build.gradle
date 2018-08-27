@@ -21,3 +21,5 @@ dependencies {
 
 test.dependsOn animalsnifferMain
 test.dependsOn animalsnifferTest
+
+apply from: rootProject.file("maven-gradle.gradle")
