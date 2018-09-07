@@ -6,8 +6,6 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.rhino.Objects;
-
 public final class NativeContinuation extends IdScriptableObject
     implements Function
 {
@@ -68,7 +66,7 @@ public final class NativeContinuation extends IdScriptableObject
      * @throws NullPointerException if either continuation is null
      */
     public static boolean equalImplementations(NativeContinuation c1, NativeContinuation c2) {
-        return Objects.equals(c1.implementation, c2.implementation);
+        return CompatObjects.equals(c1.implementation, c2.implementation);
     }
 
     @Override

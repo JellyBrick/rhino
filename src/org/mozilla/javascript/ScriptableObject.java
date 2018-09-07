@@ -31,7 +31,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 import org.mozilla.javascript.annotations.JSStaticFunction;
-import org.mozilla.rhino.Platform;
 
 /**
  * This is the default implementation of the Scriptable interface. This

@@ -1,8 +1,8 @@
-package org.mozilla.rhino;
+package org.mozilla.javascript;
 
 import android.os.Build;
 
-public abstract class Platform {
+abstract class Platform {
 
   private static final SpecifiedPlatform PLATFORM =
       "Dalvik".equals(System.getProperty("java.vm.name")) ? new AndroidPlatform() : new JavaPlatform();

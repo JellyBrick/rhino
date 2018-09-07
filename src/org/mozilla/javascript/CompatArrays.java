@@ -1,6 +1,6 @@
-package org.mozilla.rhino;
+package org.mozilla.javascript;
 
-public class Arrays {
+class CompatArrays {
 
   static boolean deepEquals0(Object e1, Object e2) {
     assert e1 != null;

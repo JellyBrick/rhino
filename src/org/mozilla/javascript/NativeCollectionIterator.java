@@ -2,8 +2,6 @@ package org.mozilla.javascript;
 
 import java.util.Iterator;
 
-import org.mozilla.rhino.Collections;
-
 public class NativeCollectionIterator
     extends ES6Iterator
 {
@@ -20,7 +18,7 @@ public class NativeCollectionIterator
     public NativeCollectionIterator(String tag)
     {
         this.className = tag;
-        this.iterator = Collections.emptyIterator();
+        this.iterator = CompatCollections.emptyIterator();
         this.type = Type.BOTH;
     }
 

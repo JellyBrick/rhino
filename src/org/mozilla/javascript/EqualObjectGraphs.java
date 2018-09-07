@@ -16,7 +16,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.mozilla.javascript.debug.DebuggableObject;
-import org.mozilla.rhino.Objects;
 
 /**
  * An object that implements deep equality test of objects, including their 
@@ -47,7 +46,7 @@ final class EqualObjectGraphs  {
     // Currently compared objects; used to avoid infinite recursion over cyclic object graphs.
     private final Map<Object, Object> currentlyCompared = new IdentityHashMap<>();
     
-    static <T> T withThreadLocal(org.mozilla.rhino.Function<EqualObjectGraphs, T> action) {
+    static <T> T withThreadLocal(CompatFunction<EqualObjectGraphs, T> action) {
         final EqualObjectGraphs currEq = instance.get();
         if (currEq == null) {
             final EqualObjectGraphs eq = new EqualObjectGraphs();
@@ -125,7 +124,7 @@ final class EqualObjectGraphs  {
         } else if (o1 instanceof Object[]) {
             return o2 instanceof Object[] && equalObjectArrays((Object[])o1, (Object[])o2);
         } else if (o1.getClass().isArray()) {
-            return Objects.deepEquals(o1,  o2);
+            return CompatObjects.deepEquals(o1,  o2);
         } else if (o1 instanceof List<?>) {
             return o2 instanceof List<?> && equalLists((List<?>)o1, (List<?>)o2);
         } else if (o1 instanceof Map<?, ?>) {
@@ -248,7 +247,7 @@ final class EqualObjectGraphs  {
     }
 
     private static boolean equalInterpretedFunctions(final InterpretedFunction f1, final InterpretedFunction f2) {
-        return Objects.equals(f1.getEncodedSource(), f2.getEncodedSource());
+        return CompatObjects.equals(f1.getEncodedSource(), f2.getEncodedSource());
     }
 
     // Sort IDs deterministically

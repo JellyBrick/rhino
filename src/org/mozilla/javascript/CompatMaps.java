@@ -1,10 +1,10 @@
-package org.mozilla.rhino;
+package org.mozilla.javascript;
 
 import java.util.Map;
 
-public class Maps {
+class CompatMaps {
 
-  public static <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
+  static <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
     V v = map.get(key);
     if (v == null) {
       v = map.put(key, value);

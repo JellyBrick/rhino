@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.mozilla.javascript.jdk15.VMBridge_jdk15;
 import org.mozilla.javascript.jdk18.VMBridge_jdk18;
-import org.mozilla.rhino.Platform;
 
 public abstract class VMBridge
 {

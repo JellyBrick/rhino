@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.mozilla.rhino.Iterators;
-import org.mozilla.rhino.Maps;
-
 /**
  * This generic hash table class is used by Set and Map. It uses
  * a standard HashMap for storing keys and values so that we can handle
@@ -113,7 +110,7 @@ public class Hashtable
 
     public void put(Object key, Object value) {
         final Entry nv = new Entry(key, value);
-        final Entry ev = Maps.putIfAbsent(map, nv, nv);
+        final Entry ev = CompatMaps.putIfAbsent(map, nv, nv);
         if (ev == null) {
             // New value -- insert to end of doubly-linked list
             if (first == null) {
@@ -189,7 +186,7 @@ public class Hashtable
     public void clear() {
         // Zero out all the entries so that existing iterators will skip them all
         Iterator<Entry> it = iterator();
-        Iterators.forEachRemaining(it, Entry::clear);
+        CompatIterators.forEachRemaining(it, Entry::clear);
 
         // Replace the existing list with a dummy, and make it the last node
         // of the current list. If new nodes are added now, existing iterators

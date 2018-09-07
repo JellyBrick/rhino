@@ -15,7 +15,6 @@ import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.ScriptRuntime.NoSuchMethodShim;
 import org.mozilla.javascript.debug.DebugFrame;
-import org.mozilla.rhino.Objects;
 
 import static org.mozilla.javascript.UniqueTag.DOUBLE_MARK;
 
@@ -289,7 +288,7 @@ public final class Interpreter extends Icode implements Evaluator
     }
 
     private static boolean compareIdata(InterpreterData i1, InterpreterData i2) {
-        return i1 == i2 || Objects.equals(getEncodedSource(i1), getEncodedSource(i2));
+        return i1 == i2 || CompatObjects.equals(getEncodedSource(i1), getEncodedSource(i2));
     }
     
     private static final class ContinuationJump implements Serializable

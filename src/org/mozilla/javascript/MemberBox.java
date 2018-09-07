@@ -9,8 +9,6 @@ package org.mozilla.javascript;
 import java.lang.reflect.*;
 import java.io.*;
 
-import org.mozilla.rhino.Executables;
-
 /**
  * Wrappper class for Method and Constructor instances to cache
  * getParameterTypes() results, recover from IllegalAccessException
@@ -38,7 +36,7 @@ final class MemberBox implements Serializable
 
     Class<?>[] argTypes()
     {
-        return Executables.getParameterTypes(memberObject);
+        return CompatExecutables.getParameterTypes(memberObject);
     }
 
     Class<?> getReturnType()
@@ -48,7 +46,7 @@ final class MemberBox implements Serializable
 
     boolean vararg()
     {
-        return Executables.isVarArgs(memberObject);
+        return CompatExecutables.isVarArgs(memberObject);
     }
 
     boolean isMethod()
@@ -63,17 +61,17 @@ final class MemberBox implements Serializable
 
     boolean isStatic()
     {
-        return Modifier.isStatic(Executables.getModifiers(memberObject));
+        return Modifier.isStatic(CompatExecutables.getModifiers(memberObject));
     }
 
     String getName()
     {
-        return Executables.getName(memberObject);
+        return CompatExecutables.getName(memberObject);
     }
 
     Class<?> getDeclaringClass()
     {
-        return Executables.getDeclaringClass(memberObject);
+        return CompatExecutables.getDeclaringClass(memberObject);
     }
 
     String toJavaDeclaration()
@@ -221,9 +219,9 @@ final class MemberBox implements Serializable
         if (!(member instanceof Method || member instanceof Constructor))
             throw new IllegalArgumentException("not Method or Constructor");
         out.writeBoolean(member instanceof Method);
-        out.writeObject(Executables.getName(member));
-        out.writeObject(Executables.getDeclaringClass(member));
-        writeParameters(out, Executables.getParameterTypes(member));
+        out.writeObject(CompatExecutables.getName(member));
+        out.writeObject(CompatExecutables.getDeclaringClass(member));
+        writeParameters(out, CompatExecutables.getParameterTypes(member));
     }
 
     /**

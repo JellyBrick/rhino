@@ -1,13 +1,13 @@
-package org.mozilla.rhino;
+package org.mozilla.javascript;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
-public class Collections {
+class CompatCollections {
 
   @SuppressWarnings("unchecked")
-  public static <T> Iterator<T> emptyIterator() {
+  static <T> Iterator<T> emptyIterator() {
     return (Iterator<T>) EmptyIterator.EMPTY_ITERATOR;
   }
 
@@ -20,7 +20,7 @@ public class Collections {
     public void remove() { throw new IllegalStateException(); }
     @Override
     public void forEachRemaining(Consumer<? super E> action) {
-      Objects.requireNonNull(action);
+      CompatObjects.requireNonNull(action);
     }
   }
 }

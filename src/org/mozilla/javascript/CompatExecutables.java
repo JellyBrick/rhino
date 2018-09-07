@@ -1,12 +1,12 @@
-package org.mozilla.rhino;
+package org.mozilla.javascript;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public class Executables {
+class CompatExecutables {
 
-  public static boolean isVarArgs(AccessibleObject object) {
+  static boolean isVarArgs(AccessibleObject object) {
     if (object instanceof Constructor) {
       return ((Constructor<?>) object).isVarArgs();
     } else {
@@ -14,7 +14,7 @@ public class Executables {
     }
   }
 
-  public static Class<?> getDeclaringClass(AccessibleObject object) {
+  static Class<?> getDeclaringClass(AccessibleObject object) {
     if (object instanceof Constructor) {
       return ((Constructor<?>) object).getDeclaringClass();
     } else if (object instanceof Method) {
@@ -24,7 +24,7 @@ public class Executables {
     }
   }
 
-  public static int getModifiers(AccessibleObject object) {
+  static int getModifiers(AccessibleObject object) {
     if (object instanceof Constructor) {
       return ((Constructor<?>) object).getModifiers();
     } else if (object instanceof Method) {
@@ -34,7 +34,7 @@ public class Executables {
     }
   }
 
-  public static String getName(AccessibleObject object) {
+  static String getName(AccessibleObject object) {
     if (object instanceof Constructor) {
       return ((Constructor<?>) object).getName();
     } else if (object instanceof Method) {
@@ -44,7 +44,7 @@ public class Executables {
     }
   }
 
-  public static Class<?>[] getParameterTypes(AccessibleObject object) {
+  static Class<?>[] getParameterTypes(AccessibleObject object) {
     if (object instanceof Constructor) {
       return ((Constructor<?>) object).getParameterTypes();
     } else if (object instanceof Method) {
@@ -54,7 +54,7 @@ public class Executables {
     }
   }
 
-  public static int getParameterCount(AccessibleObject object) {
+  static int getParameterCount(AccessibleObject object) {
     return getParameterTypes(object).length;
   }
 }
