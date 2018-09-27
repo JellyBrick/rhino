@@ -24,7 +24,7 @@ final class MemberBox implements Serializable
     private transient AccessibleObject memberObject;
     Object delegateTo;
 
-    MemberBox(Executable executable)
+    MemberBox(AccessibleObject executable)
     {
         this.memberObject = executable;
     }
