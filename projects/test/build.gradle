@@ -13,9 +13,9 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(":rhino")
-    implementation project(":rhino-xml")
-    implementation project(":rhino-tools")
+    implementation project(":core")
+    implementation project(":xml")
+    implementation project(":tools")
     testImplementation "junit:junit:4.12"
     testImplementation "org.yaml:snakeyaml:1.21"
     testImplementation "net.trajano.caliper:caliper:1.2.1"
