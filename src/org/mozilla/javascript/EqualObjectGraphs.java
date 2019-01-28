@@ -6,6 +6,7 @@
 
 package org.mozilla.javascript;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -39,6 +40,8 @@ import org.mozilla.javascript.debug.DebuggableObject;
  */
 final class EqualObjectGraphs  {
     private static final ThreadLocal<EqualObjectGraphs> instance = new ThreadLocal<>();
+
+    private static final List<Class<?>> statelessClasses = new ArrayList<>();
     
     // Object pairs already known to be equal. Used to short-circuit repeated traversals of objects reachable through
     // different paths as well as to detect structural inequality.
@@ -58,6 +61,10 @@ final class EqualObjectGraphs  {
             }
         }
         return action.apply(currEq);
+    }
+
+    public static void addStatelessClass(Class<?> clazz) {
+        statelessClasses.add(clazz);
     }
     
     boolean equalGraphs(Object o1, Object o2) {
@@ -130,17 +137,23 @@ final class EqualObjectGraphs  {
         } else if (o1 instanceof Map<?, ?>) {
             return o2 instanceof Map<?, ?> && equalMaps((Map<?, ?>)o1, (Map<?, ?>)o2);
         } else if (o1 instanceof Set<?>) {
-            return o2 instanceof Set<?> && equalSets((Set<?>)o1, (Set<?>)o2);
-        } else if (o1 instanceof NativeGlobal) {
-            return o2 instanceof NativeGlobal; // stateless objects
-        } else if (o1 instanceof JavaAdapter) {
-            return o2 instanceof JavaAdapter; // stateless objects
-        } else if (o1 instanceof NativeJavaTopPackage) {
-            return o2 instanceof NativeJavaTopPackage; // stateless objects
+            return o2 instanceof Set<?> && equalSets((Set<?>) o1, (Set<?>) o2);
+        } else if (equalGraphsStatelessClasses(o1, o2)) {
+            return true;
         }
 
         // Fallback case for everything else.
         return o1.equals(o2);
+    }
+
+    private boolean equalGraphsStatelessClasses(Object o1, Object o2) {
+        for (int i = 0, n = statelessClasses.size(); i < n; i++) {
+            Class<?> clazz = statelessClasses.get(i);
+            if (clazz.isAssignableFrom(o1.getClass()) && clazz.isAssignableFrom(o2.getClass())) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private boolean equalScriptables(final Scriptable s1, final Scriptable s2) {

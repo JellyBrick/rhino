@@ -24,7 +24,7 @@ public class ClassCache implements Serializable
     private static final Object AKEY = "ClassCache";
     private volatile boolean cachingIsEnabled = true;
     private transient Map<Class<?>,JavaMembers> classTable;
-    private transient Map<JavaAdapter.JavaAdapterSignature,Class<?>> classAdapterCache;
+    private transient Map<?,Class<?>> classAdapterCache;
     private transient Map<Class<?>,Object> interfaceAdapterCache;
     private int generatedClassSerial;
     private Scriptable associatedScope;
@@ -135,10 +135,10 @@ public class ClassCache implements Serializable
         return classTable;
     }
 
-    Map<JavaAdapter.JavaAdapterSignature,Class<?>> getInterfaceAdapterCacheMap()
+    Map<?,Class<?>> getInterfaceAdapterCacheMap()
     {
         if (classAdapterCache == null) {
-            classAdapterCache = new ConcurrentHashMap<JavaAdapter.JavaAdapterSignature,Class<?>>(16, 0.75f, 1);
+            classAdapterCache = new ConcurrentHashMap<Object,Class<?>>(16, 0.75f, 1);
         }
         return classAdapterCache;
     }

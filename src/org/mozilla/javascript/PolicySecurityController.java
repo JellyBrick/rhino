@@ -156,7 +156,7 @@ public class PolicySecurityController extends SecurityController
         return caller.call(callable, cx, scope, thisObj, args);
     }
 
-    public abstract static class SecureCaller
+    public abstract static class SecureCaller implements RhinoSecurityManager.SecureCaller
     {
         public abstract Object call(Callable callable, Context cx, Scriptable scope,
                 Scriptable thisObj, Object[] args);

@@ -23,11 +23,13 @@ public class RhinoSecurityManager extends SecurityManager {
         Class<?>[] context = getClassContext();
         for (Class<?> c : context) {
             if (c != InterpretedFunction.class && NativeFunction.class.isAssignableFrom(c) ||
-                    PolicySecurityController.SecureCaller.class.isAssignableFrom(c)) {
+                    RhinoSecurityManager.SecureCaller.class.isAssignableFrom(c)) {
                 return c;
             }
         }
         return null;
     }
+
+    public interface SecureCaller { }
 
 }

@@ -5,20 +5,16 @@ sourceSets {
     main {
         java {
             srcDirs "${rootProject.projectDir}/src"
-            exclude "org/mozilla/classfile/**",
+            include "org/mozilla/classfile/**",
                     "org/mozilla/javascript/optimizer/**",
                     "org/mozilla/javascript/JavaAdapter.java",
                     "org/mozilla/javascript/PolicySecurityController.java"
-        }
-        resources {
-            srcDirs "${rootProject.projectDir}/src"
-            include "**/*.properties"
         }
     }
 }
 
 dependencies {
-    compileOnly "com.google.android:android:4.1.1.4"
+    implementation project(":core")
     compileOnly "org.codehaus.mojo:animal-sniffer-annotations:1.17"
     signature "org.codehaus.mojo.signature:java16:1.1@signature"
     signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"

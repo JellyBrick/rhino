@@ -1,6 +1,9 @@
 include ":core"
 project(":core").projectDir = new File("projects/core")
 
+include ":class"
+project(":class").projectDir = new File("projects/class")
+
 include ":xml"
 project(":xml").projectDir = new File("projects/xml")
 

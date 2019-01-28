@@ -26,6 +26,10 @@ public class NativeGlobal implements Serializable, IdFunctionCall
 {
     static final long serialVersionUID = 6080442165748707530L;
 
+    static {
+        EqualObjectGraphs.addStatelessClass(NativeGlobal.class);
+    }
+
     public static void init(Context cx, Scriptable scope, boolean sealed) {
         NativeGlobal obj = new NativeGlobal();
 

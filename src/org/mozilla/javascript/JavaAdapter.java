@@ -14,6 +14,10 @@ import java.util.*;
 
 public final class JavaAdapter implements IdFunctionCall
 {
+    static {
+        EqualObjectGraphs.addStatelessClass(JavaAdapter.class);
+    }
+
     /**
      * Provides a key with which to distinguish previously generated
      * adapter classes stored in a hash table.
@@ -320,7 +324,7 @@ public final class JavaAdapter implements IdFunctionCall
     {
         ClassCache cache = ClassCache.get(scope);
         Map<JavaAdapterSignature,Class<?>> generated
-            = cache.getInterfaceAdapterCacheMap();
+            = (Map<JavaAdapterSignature, Class<?>>) cache.getInterfaceAdapterCacheMap();
 
         ObjToIntMap names = getObjectFunctionNames(obj);
         JavaAdapterSignature sig;

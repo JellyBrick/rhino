@@ -24,6 +24,10 @@ public class NativeJavaTopPackage
 {
     static final long serialVersionUID = -1455787259477709999L;
 
+    static {
+        EqualObjectGraphs.addStatelessClass(NativeJavaTopPackage.class);
+    }
+
     // we know these are packages so we can skip the class check
     // note that this is ok even if the package isn't present.
     private static final String[][] commonPackages = {

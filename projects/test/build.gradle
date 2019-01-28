@@ -14,6 +14,7 @@ sourceSets {
 
 dependencies {
     implementation project(":core")
+    implementation project(":class")
     implementation project(":xml")
     implementation project(":tools")
     testImplementation "junit:junit:4.12"
