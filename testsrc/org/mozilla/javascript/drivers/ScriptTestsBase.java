@@ -4,6 +4,15 @@
 
 package org.mozilla.javascript.drivers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -13,10 +22,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tests.Utils;
 import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
-
-import java.io.*;
-
-import static org.junit.Assert.*;
 
 /**
  * This class is used for creating test scripts that are loaded from JS scripts. Each test must

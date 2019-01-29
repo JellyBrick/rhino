@@ -1,5 +1,13 @@
 package org.mozilla.javascript.tests;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -8,14 +16,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class DoctestFeature18EnabledTest extends DoctestsTest {
