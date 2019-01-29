@@ -1,15 +1,18 @@
 package org.mozilla.javascript;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
 public class NativeCollectionIterator
     extends ES6Iterator
 {
-    private final Iterator<Hashtable.Entry> iterator;
-    private final String className;
-    private final Type type;
+    private String className;
+    private Type type;
+    private transient Iterator<Hashtable.Entry> iterator = CompatCollections.emptyIterator();
 
-    enum Type { KEYS, VALUES, BOTH }
+    enum Type { KEYS, VALUES, BOTH };
 
     static void init(ScriptableObject scope, String tag, boolean sealed) {
         ES6Iterator.init(scope, sealed, new NativeCollectionIterator(tag), tag);
@@ -55,5 +58,22 @@ public class NativeCollectionIterator
             default:
                 throw new AssertionError();
         }
+    }
+
+    private void readObject(ObjectInputStream stream)
+        throws IOException, ClassNotFoundException
+    {
+        stream.defaultReadObject();
+        className = (String) stream.readObject();
+        type = (Type) stream.readObject();
+        iterator = CompatCollections.emptyIterator();
+    }
+
+    private void writeObject(ObjectOutputStream stream)
+        throws IOException
+    {
+        stream.defaultWriteObject();
+        stream.writeObject(className);
+        stream.writeObject(type);
     }
 }
