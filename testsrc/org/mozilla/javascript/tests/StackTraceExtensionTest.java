@@ -70,13 +70,17 @@ public class StackTraceExtensionTest
     @Test
     public void testStackTrace0()
     {
-        testTraces(0);
+        if (Utils.HAS_CODEGEN) {
+            testTraces(0);
+        }
     }
 
     @Test
     public void testStackTrace9()
     {
-        testTraces(9);
+        if (Utils.HAS_CODEGEN) {
+            testTraces(9);
+        }
     }
 
     @Test

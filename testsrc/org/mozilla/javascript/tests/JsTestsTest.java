@@ -36,13 +36,17 @@ public class JsTestsTest extends JsTestsBase {
 
     @Test
     public void testJsTestsCompiled() throws IOException {
-        setOptimizationLevel(0);
-        runJsTests();
+        if (Utils.HAS_CODEGEN) {
+            setOptimizationLevel(0);
+            runJsTests();
+        }
     }
 
     @Test
     public void testJsTestsOptimized() throws IOException {
-        setOptimizationLevel(9);
-        runJsTests();
+        if (Utils.HAS_CODEGEN) {
+            setOptimizationLevel(9);
+            runJsTests();
+        }
     }
 }

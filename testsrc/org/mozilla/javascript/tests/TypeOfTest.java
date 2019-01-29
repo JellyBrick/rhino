@@ -103,8 +103,10 @@ public class TypeOfTest extends TestCase
 	private void doTest(final String expected, final ContextAction action)
 	{
 		doTest(-1, expected, action);
-		doTest(0, expected, action);
-		doTest(1, expected, action);
+		if (Utils.HAS_CODEGEN) {
+			doTest(0, expected, action);
+			doTest(1, expected, action);
+		}
 	}
 
 	private void doTest(final int optimizationLevel, final String expected, final ContextAction action)

@@ -82,11 +82,15 @@ public abstract class ScriptTestsBase {
 
     @Test
     public void rhinoTestOpt0() {
-        assertEquals("success", executeRhinoScript(0));
+        if (Utils.HAS_CODEGEN) {
+            assertEquals("success", executeRhinoScript(0));
+        }
     }
 
     @Test
     public void rhinoTestOpt9() {
-        assertEquals("success", executeRhinoScript(9));
+        if (Utils.HAS_CODEGEN) {
+            assertEquals("success", executeRhinoScript(9));
+        }
     }
 }

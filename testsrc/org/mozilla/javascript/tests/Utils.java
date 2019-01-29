@@ -16,14 +16,29 @@ import org.mozilla.javascript.Scriptable;
  */
 public class Utils
 {
+	public static final boolean HAS_CODEGEN;
+
+	static {
+		boolean hasCodegen;
+		try {
+			Class.forName("org.mozilla.javascript.optimizer.Codegen");
+			hasCodegen = true;
+		} catch (ClassNotFoundException e) {
+			hasCodegen = false;
+		}
+		HAS_CODEGEN = hasCodegen;
+	}
+
 	/**
 	 * Runs the action successively with all available optimization levels
 	 */
 	public static void runWithAllOptimizationLevels(final ContextAction action)
 	{
 		runWithOptimizationLevel(action, -1);
-		runWithOptimizationLevel(action, 0);
-		runWithOptimizationLevel(action, 1);
+		if (HAS_CODEGEN) {
+			runWithOptimizationLevel(action, 0);
+			runWithOptimizationLevel(action, 1);
+		}
 	}
 
 	/**
@@ -32,8 +47,10 @@ public class Utils
 	public static void runWithAllOptimizationLevels(final ContextFactory contextFactory, final ContextAction action)
 	{
 		runWithOptimizationLevel(contextFactory, action, -1);
-		runWithOptimizationLevel(contextFactory, action, 0);
-		runWithOptimizationLevel(contextFactory, action, 1);
+		if (HAS_CODEGEN) {
+			runWithOptimizationLevel(contextFactory, action, 0);
+			runWithOptimizationLevel(contextFactory, action, 1);
+		}
 	}
 
 	/**

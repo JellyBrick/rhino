@@ -51,7 +51,15 @@ public class MozillaSuiteTest {
     private final File jsFile;
     private final int optimizationLevel;
 
-    static final int[] OPT_LEVELS = { -1, 0, 9 };
+    static final int[] OPT_LEVELS;
+
+    static {
+        if (Utils.HAS_CODEGEN) {
+            OPT_LEVELS = new int[] {-1, 0, 9};
+        } else {
+            OPT_LEVELS = new int[] {-1};
+        }
+    }
 
     public MozillaSuiteTest(File jsFile, int optimizationLevel) {
         this.jsFile = jsFile;

@@ -98,25 +98,33 @@ public class ObserveInstructionCountTest extends TestCase {
     public void testWhileTrueInGlobal() {
         String source = "var i=0; while (true) i++;";
         baseCase(-1, source); // interpreted mode
-        baseCase(1, source); // compiled mode
+        if (Utils.HAS_CODEGEN) {
+            baseCase(1, source); // compiled mode
+        }
     }
 
     public void testWhileTrueNoCounterInGlobal() {
         String source = "while (true);";
         baseCase(-1, source); // interpreted mode
-        baseCase(1, source); // compiled mode
+        if (Utils.HAS_CODEGEN) {
+            baseCase(1, source); // compiled mode
+        }
     }
 
     public void testWhileTrueInFunction() {
         String source = "var i=0; function f() { while (true) i++; } f();";
         baseCase(-1, source); // interpreted mode
-        baseCase(1, source); // compiled mode
+        if (Utils.HAS_CODEGEN) {
+            baseCase(1, source); // compiled mode
+        }
     }
 
     public void testForever() {
         String source = "for(;;);";
         baseCase(-1, source); // interpreted mode
-        baseCase(1, source); // compiled mode
+        if (Utils.HAS_CODEGEN) {
+            baseCase(1, source); // compiled mode
+        }
     }
 
  }
