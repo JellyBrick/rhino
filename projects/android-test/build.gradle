@@ -37,6 +37,8 @@ android {
                         // java.lang.StackOverflowError
                         "org/mozilla/javascript/tests/ConsStringTest.java",
                         // No generated class
+                        "org/mozilla/javascript/tests/CodegenTest.java",
+                        // No generated class
                         "org/mozilla/javascript/tests/GeneratedClassNameTest.java",
                         // No generated class
                         "org/mozilla/javascript/tests/GeneratedMethodNameTest.java"

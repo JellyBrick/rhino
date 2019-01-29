@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.mozilla.classfile.ClassFileWriter.ClassFileFormatException;
 import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.debug.DebuggableScript;
@@ -2535,7 +2534,7 @@ public class Context
             }
 
             bytecode = compiler.compile(compilerEnv, tree, tree.getEncodedSource(), returnFunction);
-        } catch (ClassFileFormatException e) {
+        } catch (RuntimeException e) { // TODO how to use ClassFileFormatException here
             // we hit some class file limit, fall back to interpreter or report
             compiler = createInterpreter();
 
