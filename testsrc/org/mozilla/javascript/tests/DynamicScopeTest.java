@@ -65,7 +65,7 @@ public class DynamicScopeTest extends TestCase {
 	        Object result = cx.evaluateString(scope, "42", "source", 1, null);
 			assertEquals(42, result);
 		} finally {
-			// cx.exit();
+			Context.exit();
 		}
 		
 		// ... Lots of switches between JS and Java code here ...
@@ -82,7 +82,7 @@ public class DynamicScopeTest extends TestCase {
 	        Object result = cx.evaluateString(scope, "23", "source", 1, null);
 			assertEquals(23, result);
 		} finally {
-			// cx.exit
+			Context.exit();
 		}
 	}
 	
