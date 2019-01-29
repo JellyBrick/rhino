@@ -21,6 +21,7 @@ import org.mozilla.javascript.commonjs.module.Require;
 import org.mozilla.javascript.commonjs.module.RequireBuilder;
 import org.mozilla.javascript.commonjs.module.provider.SoftCachingModuleScriptProvider;
 import org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider;
+import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.ToolErrorReporter;
 import org.mozilla.javascript.serialize.*;
 
@@ -357,7 +358,7 @@ public class Global extends ImporterTopLevel
         }
         Object obj = args[0];
         String filename = Context.toString(args[1]);
-        FileOutputStream fos = new FileOutputStream(filename);
+        FileOutputStream fos = FileProvider.getInstance().getOutputStream(filename);
         Scriptable scope = ScriptableObject.getTopLevelScope(thisObj);
         ScriptableOutputStream out = new ScriptableOutputStream(fos, scope);
         out.writeObject(obj);
@@ -373,7 +374,7 @@ public class Global extends ImporterTopLevel
                 "Expected a filename to read the serialization from");
         }
         String filename = Context.toString(args[0]);
-        FileInputStream fis = new FileInputStream(filename);
+        FileInputStream fis = FileProvider.getInstance().getInputStream(filename);
         Scriptable scope = ScriptableObject.getTopLevelScope(thisObj);
         ObjectInputStream in = new ScriptableInputStream(fis, scope);
         Object deserialized = in.readObject();

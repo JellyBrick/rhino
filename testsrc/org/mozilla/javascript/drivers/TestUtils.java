@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.Arrays;
 
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.tools.FileProvider;
 
 public class TestUtils {
     private static ContextFactory.GlobalSetter globalSetter;
@@ -66,7 +67,7 @@ public class TestUtils {
         List<String> list = inherited == null ?
                 new ArrayList<String>() :
                 new ArrayList<String>(Arrays.asList(inherited));
-        InputStream in = JsTestsBase.class.getResourceAsStream(resource);
+        InputStream in = FileProvider.getInstance().getInputStream("testsrc" + resource);
         if (in != null)
             addTestsFromStream(in, list);
         return list.toArray(new String[0]);

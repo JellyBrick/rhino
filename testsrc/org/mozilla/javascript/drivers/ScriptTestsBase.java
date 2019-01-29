@@ -10,6 +10,8 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tests.Utils;
+import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
 
 import java.io.*;
@@ -42,7 +44,7 @@ public abstract class ScriptTestsBase {
         Context cx = Context.enter();
         try {
             if (!"".equals(anno.value())) {
-                script = new InputStreamReader(new FileInputStream(anno.value()), "UTF-8");
+                script = new InputStreamReader(FileProvider.getInstance().getInputStream(anno.value()), "UTF-8");
                 suiteName = anno.value();
             } else if (!"".equals(anno.inline())) {
                 script = new StringReader("load('testsrc/assert.js');\n" + anno.inline() + "\n" + "'success';");

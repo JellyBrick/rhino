@@ -6,6 +6,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
 
 import java.io.File;
@@ -25,7 +26,7 @@ public class DoctestFeature18EnabledTest extends DoctestsTest {
     @Parameters(name = "{0}")
     public static Collection<Object[]> singleDoctest() throws IOException {
         List<Object[]> result = new ArrayList<Object[]>();
-        File f = new File(DoctestsTest.baseDirectory, "feature18enabled.doctest");
+        File f = new File(FileProvider.getInstance().getFile(DoctestsTest.baseDirectory), "feature18enabled.doctest");
         String contents = DoctestsTest.loadFile(f);
         result.add(new Object[]{f.getName(), contents, -1});
         return result;

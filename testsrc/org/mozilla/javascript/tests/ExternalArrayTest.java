@@ -7,6 +7,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ExternalArrayData;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
 import org.mozilla.javascript.typedarrays.NativeFloat64Array;
 import org.mozilla.javascript.typedarrays.NativeInt16Array;
@@ -135,7 +136,7 @@ public class ExternalArrayTest
     {
         try {
             cx.setOptimizationLevel(opt);
-            FileReader rdr = new FileReader(script);
+            FileReader rdr = FileProvider.getInstance().getReader(script);
 
             try {
                 cx.evaluateReader(root, rdr, script, 1, null);

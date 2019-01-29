@@ -1,6 +1,6 @@
 package org.mozilla.javascript.tests.commonjs.module;
 
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,6 +12,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.commonjs.module.Require;
 import org.mozilla.javascript.commonjs.module.provider.StrongCachingModuleScriptProvider;
 import org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider;
+import org.mozilla.javascript.tools.FileProvider;
 
 /**
  * @author Attila Szegedi
@@ -50,7 +51,7 @@ public class RequireJarTest extends RequireTest
         final Context cx = createContext();
         final Scriptable scope = cx.initStandardObjects();
         final Require require = getSandboxedRequire(cx, scope, false);
-        final String jsFile = getClass().getResource("testNonSandboxed.js").toExternalForm();
+        final String jsFile = FileProvider.getInstance().getFile("testsrc/org/mozilla/javascript/tests/commonjs/module/testNonSandboxed.js").toURI().toString();
         ScriptableObject.putProperty(scope, "moduleUri", jsFile);
         require.requireMain(cx, "testNonSandboxed");
     }
@@ -87,8 +88,8 @@ public class RequireJarTest extends RequireTest
         }
     }
     
-    private Reader getReader(String name) {
-        return new InputStreamReader(getClass().getResourceAsStream(name));
+    private Reader getReader(String name) throws IOException {
+        return FileProvider.getInstance().getReader("testsrc/org/mozilla/javascript/tests/commonjs/module/" + name);
     }
     
     private void testWithSandboxedRequire(String moduleId) throws Exception {
@@ -111,7 +112,7 @@ public class RequireJarTest extends RequireTest
     }
 
     private URI getDirectory() throws URISyntaxException {
-        final String jarFileLoc = getClass().getResource("modules.jar").toURI().toString();
+        final String jarFileLoc = FileProvider.getInstance().getFile("testsrc/org/mozilla/javascript/tests/commonjs/module/modules.jar").toURI().toString();
         String jarParent = "jar:" + jarFileLoc + "!/";
         return new URI(jarParent);
     }

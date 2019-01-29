@@ -1,6 +1,6 @@
 package org.mozilla.javascript.tests.commonjs.module;
 
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +14,7 @@ import org.mozilla.javascript.commonjs.module.provider.StrongCachingModuleScript
 import org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider;
 
 import junit.framework.TestCase;
+import org.mozilla.javascript.tools.FileProvider;
 
 /**
  * @author Attila Szegedi
@@ -50,7 +51,7 @@ public class RequireTest extends TestCase
         final Context cx = createContext();
         final Scriptable scope = cx.initStandardObjects();
         final Require require = getSandboxedRequire(cx, scope, false);
-        final String jsFile = getClass().getResource("testNonSandboxed.js").toExternalForm();
+        final String jsFile = FileProvider.getInstance().getFile("testsrc/org/mozilla/javascript/tests/commonjs/module/testNonSandboxed.js").toURI().toString();
         ScriptableObject.putProperty(scope, "moduleUri", jsFile);
         require.requireMain(cx, "testNonSandboxed");
     }
@@ -84,8 +85,8 @@ public class RequireTest extends TestCase
         }
     }
 
-    private Reader getReader(String name) {
-        return new InputStreamReader(getClass().getResourceAsStream(name));
+    private Reader getReader(String name) throws IOException {
+        return FileProvider.getInstance().getReader("testsrc/org/mozilla/javascript/tests/commonjs/module/" + name);
     }
 
     private void testWithSandboxedRequire(String moduleId) throws Exception {
@@ -108,7 +109,7 @@ public class RequireTest extends TestCase
     }
 
     private URI getDirectory() throws URISyntaxException {
-        final String jsFile = getClass().getResource("testSandboxed.js").toExternalForm();
+        final String jsFile = FileProvider.getInstance().getFile("testsrc/org/mozilla/javascript/tests/commonjs/module/testSandboxed.js").toURI().toString();
         return new URI(jsFile.substring(0, jsFile.lastIndexOf('/') + 1));
     }
 

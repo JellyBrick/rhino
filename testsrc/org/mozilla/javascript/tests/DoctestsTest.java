@@ -17,6 +17,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.drivers.TestUtils;
+import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
 
 import static org.junit.Assert.*;
@@ -45,7 +46,7 @@ public class DoctestsTest {
     }
 
     public static File[] getDoctestFiles() {
-        return TestUtils.recursiveListFiles(new File(baseDirectory),
+        return TestUtils.recursiveListFiles(FileProvider.getInstance().getFile(baseDirectory),
                 new FileFilter() {
                     public boolean accept(File f) {
                         String name = f.getName();
@@ -57,7 +58,7 @@ public class DoctestsTest {
     public static String loadFile(File f) throws IOException {
         int length = (int) f.length(); // don't worry about very long files
         char[] buf = new char[length];
-        new FileReader(f).read(buf, 0, length);
+        FileProvider.getInstance().getReader(f.getPath()).read(buf, 0, length);
         return new String(buf);
     }
 

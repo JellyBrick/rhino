@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.mozilla.javascript.tools.FileProvider;
 
 @RunWith(Parameterized.class)
 public class ComplianceTest {
@@ -31,7 +32,7 @@ public class ComplianceTest {
     @Parameterized.Parameters(name = "/{0}")
     public static Collection<Object[]> data() {
         List<Object[]> retval = new ArrayList<Object[]>(16);
-        final File[] files = new File("testsrc/org/mozilla/javascript/tests/commonjs/module/1.0").listFiles();
+        final File[] files = FileProvider.getInstance().getFile("testsrc/org/mozilla/javascript/tests/commonjs/module/1.0").listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
                 retval.add(new Object[]{file.getName(), file});
@@ -45,7 +46,7 @@ public class ComplianceTest {
         return new Require(cx, scope, new StrongCachingModuleScriptProvider(
                 new UrlModuleSourceProvider(
                         Collections.singleton(dir.getAbsoluteFile().toURI()),
-                        Collections.singleton(new URI(ComplianceTest.class.getResource(".").toExternalForm() + "/")))),
+                        Collections.singleton(FileProvider.getInstance().getFile("testsrc/org/mozilla/javascript/tests/commonjs/module").toURI()))),
                 null, null, false);
     }
 

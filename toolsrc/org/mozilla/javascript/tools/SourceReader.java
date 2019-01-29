@@ -46,7 +46,7 @@ public class SourceReader
         byte[] data;
         try {
             if (url == null) {
-                File file = new File(path);
+                File file = FileProvider.getInstance().getFile(path);
                 contentType = encoding = null;
                 capacityHint = (int)file.length();
                 is = new FileInputStream(file);
