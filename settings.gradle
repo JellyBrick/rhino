@@ -12,3 +12,6 @@ project(":tools").projectDir = new File("projects/tools")
 
 include ":test"
 project(":test").projectDir = new File("projects/test")
+
+include ":android-test"
+project(":android-test").projectDir = new File("projects/android-test")

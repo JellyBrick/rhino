@@ -4,6 +4,7 @@ sourceSets {
     main {
         java {
             srcDirs "${rootProject.projectDir}/toolsrc"
+            exclude "org/mozilla/javascript/tools/AndroidFileProvider.java"
         }
         resources {
             srcDirs "${rootProject.projectDir}/toolsrc"

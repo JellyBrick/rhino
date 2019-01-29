@@ -1,0 +1,101 @@
+import java.util.zip.CRC32
+
+apply plugin: "com.android.library"
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "org.mozilla.javascript.RhinoAndroidJUnitRunner"
+    }
+
+    sourceSets {
+        androidTest {
+            java {
+                srcDirs "${rootProject.projectDir}/toolsrc",
+                        "${rootProject.projectDir}/testsrc",
+                        "${rootProject.projectDir}/examples"
+                exclude "org/mozilla/javascript/tools/debugger/**",
+                        "org/mozilla/javascript/tools/shell/ConsoleTextArea.java",
+                        "org/mozilla/javascript/tools/shell/JSConsole.java",
+                        "org/mozilla/javascript/tools/idswitch/**",
+                        "org/mozilla/javascript/tools/jsc/**",
+                        "tests/**",
+                        "org/mozilla/javascript/benchmarks/**",
+                        // JavaAdapter is not available
+                        "org/mozilla/javascript/tests/Bug409702Test.java",
+                        // JavaAdapter is not available
+                        "org/mozilla/javascript/tests/Bug419940Test.java",
+                        // Codegen is not available
+                        "org/mozilla/javascript/tests/Bug708801Test.java",
+                        // Codegen is not available
+                        "org/mozilla/javascript/tests/Bug782363Test.java",
+                        // java.lang.StackOverflowError
+                        "org/mozilla/javascript/tests/ConsStringTest.java",
+                        // No generated class
+                        "org/mozilla/javascript/tests/GeneratedClassNameTest.java",
+                        // No generated class
+                        "org/mozilla/javascript/tests/GeneratedMethodNameTest.java"
+            }
+            resources {
+                srcDirs "${rootProject.projectDir}/toolsrc",
+                        "${rootProject.projectDir}/testsrc"
+                include "**/*.properties",
+                        "org/mozilla/javascript/tests/Bug482203.js",
+                        "org/mozilla/javascript/tests/ContinuationComparisonTest.js",
+                        "org/mozilla/javascript/tests/Issue176.js"
+            }
+            assets {
+                srcDirs "${rootProject.projectDir}/testassets"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    androidTestImplementation project(":core")
+    androidTestImplementation project(":xml")
+    androidTestImplementation "junit:junit:4.12"
+    androidTestImplementation "com.android.support.test:runner:1.0.2"
+    androidTestImplementation "org.yaml:snakeyaml:1.21:android"
+    androidTestImplementation "net.lingala.zip4j:zip4j:1.3.2"
+    androidTestImplementation "commons-io:commons-io:2.5"
+}
+
+task bundleTestAssets(type: Zip) {
+    doFirst {
+        delete "${rootProject.projectDir}/testassets"
+        file("${rootProject.projectDir}/testassets").mkdirs()
+    }
+
+    from "${rootProject.projectDir}/testsrc", "${rootProject.projectDir}/test262"
+    include "**/*.js", "**/*.doctest", "**/*.jar", "**/*.tests", "**/*.skip", "test262.properties"
+    archiveName "testassets.zip"
+    destinationDir file("${rootProject.projectDir}/testassets")
+
+    doLast {
+        File testassets = file("${rootProject.projectDir}/testassets/testassets.zip")
+        CRC32 crc32 = new CRC32()
+        testassets.eachByte 4096, { bytes, size ->
+            crc32.update(bytes, 0, size)
+        }
+        new File("${rootProject.projectDir}/testassets/testassets-${crc32.getValue()}.crc32").createNewFile()
+    }
+}
+
+project.afterEvaluate {
+    generateDebugAndroidTestAssets.dependsOn bundleTestAssets
+}
+
+clean {
+    delete "${rootProject.projectDir}/testassets"
+}
