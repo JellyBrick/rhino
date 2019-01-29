@@ -6,6 +6,8 @@
 
 package org.mozilla.javascript;
 
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
+
 import org.mozilla.javascript.ast.ArrayComprehension;
 import org.mozilla.javascript.ast.ArrayComprehensionLoop;
 import org.mozilla.javascript.ast.ArrayLiteral;
@@ -3924,7 +3926,7 @@ public class Parser
         }
     }
 
-
+    @IgnoreJRERequirement
     private String readFully(Reader reader) throws IOException {
         try (BufferedReader in = new BufferedReader(reader)) {
             char[] cbuf = new char[1024];

@@ -8,6 +8,8 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.net.URI;
 
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.commonjs.module.ModuleScript;
@@ -61,6 +63,7 @@ implements ModuleScriptProvider, Serializable
         this.moduleSourceProvider = moduleSourceProvider;
     }
 
+    @IgnoreJRERequirement
     @Override
     public ModuleScript getModuleScript(Context cx, String moduleId,
             URI moduleUri, URI baseUri, Scriptable paths) throws Exception
