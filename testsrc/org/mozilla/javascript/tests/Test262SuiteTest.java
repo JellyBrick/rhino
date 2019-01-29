@@ -60,8 +60,6 @@ public class Test262SuiteTest {
             "Reflect.set",
             "Reflect.setPrototypeOf",
             "SharedArrayBuffer",
-            "WeakMap",
-            "WeakSet",
             "async-functions",
             "async-iteration",
             "class",
