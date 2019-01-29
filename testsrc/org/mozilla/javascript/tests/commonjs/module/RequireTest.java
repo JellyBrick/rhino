@@ -111,4 +111,12 @@ public class RequireTest extends TestCase
         final String jsFile = getClass().getResource("testSandboxed.js").toExternalForm();
         return new URI(jsFile.substring(0, jsFile.lastIndexOf('/') + 1));
     }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        while (Context.getCurrentContext() != null) {
+            Context.exit();
+        }
+    }
 }
