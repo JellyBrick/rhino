@@ -10,7 +10,7 @@ import java.lang.reflect.*;
 import java.io.*;
 
 /**
- * Wrappper class for Method and Constructor instances to cache
+ * Wrapper class for Method and Constructor instances to cache
  * getParameterTypes() results, recover from IllegalAccessException
  * in some cases and provide serialization support.
  *
@@ -34,7 +34,7 @@ final class MemberBox implements Serializable
         return memberObject;
     }
 
-    Class<?>[] argTypes()
+    Class<?>[] getParameterTypes()
     {
         return CompatExecutables.getParameterTypes(memberObject);
     }
@@ -44,11 +44,15 @@ final class MemberBox implements Serializable
         return ((Method)memberObject).getReturnType();
     }
 
-    boolean vararg()
+    boolean isVarArgs()
     {
         return CompatExecutables.isVarArgs(memberObject);
     }
 
+    int getParameterCount() {
+        return CompatExecutables.getParameterCount(memberObject);
+    }
+    
     boolean isMethod()
     {
         return memberObject instanceof Method;
@@ -62,6 +66,11 @@ final class MemberBox implements Serializable
     boolean isStatic()
     {
         return Modifier.isStatic(CompatExecutables.getModifiers(memberObject));
+    }
+
+    boolean isPublic()
+    {
+        return Modifier.isPublic(CompatExecutables.getModifiers(memberObject));
     }
 
     String getName()
@@ -89,7 +98,7 @@ final class MemberBox implements Serializable
             }
             sb.append(name);
         }
-        sb.append(JavaMembers.liveConnectSignature(argTypes()));
+        sb.append(JavaMembers.liveConnectSignature(getParameterTypes()));
         return sb.toString();
     }
 
@@ -106,7 +115,7 @@ final class MemberBox implements Serializable
             try {
                 return method.invoke(target, args);
             } catch (IllegalAccessException ex) {
-                Method accessible = searchAccessibleMethod(method, argTypes());
+                Method accessible = searchAccessibleMethod(method, getParameterTypes());
                 if (accessible != null) {
                     memberObject = accessible;
                     method = accessible;
