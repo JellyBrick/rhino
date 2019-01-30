@@ -26,19 +26,6 @@ import org.mozilla.javascript.UintMap;
 public class ClassFileWriter {
 
     /**
-     * Thrown for cases where the error in generating the class file is due to a program size
-     * constraints rather than a likely bug in the compiler.
-     */
-    public static class ClassFileFormatException extends RuntimeException {
-
-        private static final long serialVersionUID = 1263998431033790599L;
-
-        ClassFileFormatException(String message) {
-            super(message);
-        }
-    }
-
-    /**
      * Construct a ClassFileWriter for a class.
      *
      * @param className the name of the class to write, including full package qualification.

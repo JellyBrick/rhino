@@ -5,7 +5,16 @@ sourceSets {
     main {
         java {
             srcDirs "${rootProject.projectDir}/src"
-            exclude "org/mozilla/classfile/**",
+            exclude "org/mozilla/classfile/ByteCode.java",
+                    "org/mozilla/classfile/ClassFileField.java",
+                    "org/mozilla/classfile/ClassFileMethod.java",
+                    "org/mozilla/classfile/ClassFileWriter.java",
+                    "org/mozilla/classfile/ConstantEntry.java",
+                    "org/mozilla/classfile/ConstantPool.java",
+                    "org/mozilla/classfile/ExceptionTableEntry.java",
+                    "org/mozilla/classfile/FieldOrMethodRef.java",
+                    "org/mozilla/classfile/SuperBlock.java",
+                    "org/mozilla/classfile/TypeInfo.java",
                     "org/mozilla/javascript/optimizer/**",
                     "org/mozilla/javascript/JavaAdapter.java",
                     "org/mozilla/javascript/PolicySecurityController.java"

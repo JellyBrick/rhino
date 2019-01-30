@@ -9,6 +9,7 @@ sourceSets {
                     "org/mozilla/javascript/optimizer/**",
                     "org/mozilla/javascript/JavaAdapter.java",
                     "org/mozilla/javascript/PolicySecurityController.java"
+            exclude "org/mozilla/classfile/ClassFileFormatException.java"
         }
     }
 }
