@@ -162,7 +162,7 @@ public class Parser
     // Exception to unwind
     private static class ParserException extends RuntimeException
     {
-        static final long serialVersionUID = 5882582646773765630L;
+        private static final long serialVersionUID = 5882582646773765630L;
     }
 
     public Parser() {
@@ -1009,7 +1009,7 @@ public class Parser
                 }
                 fnNode.putProp(Node.DESTRUCTURING_PARAMS, destructuringNode);
             }
-                
+
             fnNode.setBody(parseFunctionBody(FunctionNode.ARROW_FUNCTION, fnNode));
             fnNode.setEncodedSourceBounds(functionSourceStart, ts.tokenEnd);
             fnNode.setLength(ts.tokenEnd - functionSourceStart);
@@ -3213,20 +3213,20 @@ public class Parser
             if (peekToken() == Token.FOR) {
                 return generatorExpression(e, begin);
             }
-            ParenthesizedExpression pn = new ParenthesizedExpression(e);
+            mustMatchToken(Token.RP, "msg.no.paren", true);
+            if (e.getType() == Token.EMPTY && peekToken() != Token.ARROW) {
+              reportError("msg.syntax");
+              return makeErrorNode();
+            }
+            int length = ts.tokenEnd - begin;
+            ParenthesizedExpression pn = new ParenthesizedExpression(begin, length, e);
+            pn.setLineno(lineno);
             if (jsdocNode == null) {
                 jsdocNode = getAndResetJsDoc();
             }
             if (jsdocNode != null) {
                 pn.setJsDocNode(jsdocNode);
             }
-            mustMatchToken(Token.RP, "msg.no.paren", true);
-            if (e.getType() == Token.EMPTY && peekToken() != Token.ARROW) {
-              reportError("msg.syntax");
-              return makeErrorNode();
-            }
-            pn.setLength(ts.tokenEnd - pn.getPosition());
-            pn.setLineno(lineno);
             return pn;
         } finally {
             inForInit = wasInForInit;
@@ -3433,11 +3433,11 @@ public class Parser
     {
         return generatorExpression(result, pos, false);
     }
-    
+
     private AstNode generatorExpression(AstNode result, int pos, boolean inFunctionParams)
         throws IOException
     {
-        
+
         List<GeneratorExpressionLoop> loops =
                 new ArrayList<GeneratorExpressionLoop>();
         while (peekToken() == Token.FOR) {
@@ -3464,7 +3464,7 @@ public class Parser
         }
         return pn;
     }
-        
+
     private GeneratorExpressionLoop generatorExpressionLoop()
         throws IOException
     {

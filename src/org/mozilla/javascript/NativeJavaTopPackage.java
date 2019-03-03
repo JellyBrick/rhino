@@ -22,7 +22,7 @@ package org.mozilla.javascript;
 public class NativeJavaTopPackage
     extends NativeJavaPackage implements Function, IdFunctionCall
 {
-    static final long serialVersionUID = -1455787259477709999L;
+    private static final long serialVersionUID = -1455787259477709999L;
 
     static {
         EqualObjectGraphs.addStatelessClass(NativeJavaTopPackage.class);
