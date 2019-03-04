@@ -18,7 +18,7 @@ dependencies {
     implementation project(":xml")
     implementation project(":tools")
     testImplementation "junit:junit:4.12"
-    testImplementation "org.yaml:snakeyaml:1.21"
+    testImplementation "org.yaml:snakeyaml:1.23"
     testImplementation "net.trajano.caliper:caliper:1.2.1"
 }
 
