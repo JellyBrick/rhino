@@ -30,6 +30,12 @@ android {
                         "org/mozilla/javascript/tests/Bug409702Test.java",
                         // JavaAdapter is not available
                         "org/mozilla/javascript/tests/Bug419940Test.java",
+                        // Doesn't work on Interpreter
+                        "org/mozilla/javascript/tests/Bug448816Test.java",
+                        // Doesn't work on Interpreter
+                        "org/mozilla/javascript/tests/Bug466207Test.java",
+                        // Doesn't work on Interpreter
+                        "org/mozilla/javascript/tests/DynamicScopeTest.java",
                         // Codegen is not available
                         "org/mozilla/javascript/tests/Bug708801Test.java",
                         // Codegen is not available
@@ -41,7 +47,9 @@ android {
                         // No generated class
                         "org/mozilla/javascript/tests/GeneratedClassNameTest.java",
                         // No generated class
-                        "org/mozilla/javascript/tests/GeneratedMethodNameTest.java"
+                        "org/mozilla/javascript/tests/GeneratedMethodNameTest.java",
+                        // Default method is not supported
+                        "org/mozilla/javascript/tests/java8/CallDefaultMethodTest.java"
             }
             resources {
                 srcDirs "${rootProject.projectDir}/toolsrc",
