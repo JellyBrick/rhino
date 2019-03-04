@@ -1,7 +1,7 @@
 package org.mozilla.javascript.tools;
 
-import android.support.test.InstrumentationRegistry;
 import android.util.Log;
+import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,9 +17,9 @@ public class AndroidFileProvider extends FileProvider {
 
   private static final String LOG_TAG = "AndroidTestResources";
 
-  private final File tempDir = new File(InstrumentationRegistry.getContext().getCacheDir(), "temp");
-  private final File assetsDir = new File(InstrumentationRegistry.getContext().getFilesDir(), "testassets");
-  private final File assetsName = new File(InstrumentationRegistry.getContext().getFilesDir(), "testassets.name");
+  private final File tempDir = new File(InstrumentationRegistry.getInstrumentation().getContext().getCacheDir(), "temp");
+  private final File assetsDir = new File(InstrumentationRegistry.getInstrumentation().getContext().getFilesDir(), "testassets");
+  private final File assetsName = new File(InstrumentationRegistry.getInstrumentation().getContext().getFilesDir(), "testassets.name");
 
   private boolean assetsChecked = false;
 
@@ -54,7 +54,7 @@ public class AndroidFileProvider extends FileProvider {
     }
 
     String actual = null;
-    String[] assets = InstrumentationRegistry.getContext().getAssets().list("");
+    String[] assets = InstrumentationRegistry.getInstrumentation().getContext().getAssets().list("");
     for (String asset : assets) {
       if (asset.startsWith("testassets-") && asset.endsWith(".crc32")) {
         actual = asset;
@@ -71,7 +71,7 @@ public class AndroidFileProvider extends FileProvider {
       FileUtils.forceMkdir(assetsDir);
       FileUtils.cleanDirectory(assetsDir);
 
-      try (InputStream in = InstrumentationRegistry.getContext().getAssets().open("testassets.zip");
+      try (InputStream in = InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("testassets.zip");
           OutputStream out = new FileOutputStream(new File(tempDir, "testassets.zip")) ) {
         IOUtils.copy(in, out);
       }

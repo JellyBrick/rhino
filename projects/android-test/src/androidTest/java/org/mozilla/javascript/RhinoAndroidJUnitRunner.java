@@ -1,6 +1,6 @@
 package org.mozilla.javascript;
 
-import android.support.test.runner.AndroidJUnitRunner;
+import androidx.test.runner.AndroidJUnitRunner;
 import java.util.Locale;
 import java.util.TimeZone;
 
