@@ -6,14 +6,13 @@ package org.mozilla.javascript.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Objects;
-
 import org.junit.Test;
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.ast.AstNode;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.NodeVisitor;
 import org.mozilla.javascript.ast.ReturnStatement;
+import org.mozilla.javascript.compat.CompatObjects;
 
 public class ArrowFnPositionBugTest {
     /**
@@ -43,7 +42,7 @@ public class ArrowFnPositionBugTest {
         ArrowFnExtractor arrowFnExtractor = new ArrowFnExtractor();
         Parser p = new Parser();
         p.parse(src, "eval", 1).visit(arrowFnExtractor);
-        return Objects.requireNonNull(arrowFnExtractor.functionNode);
+        return CompatObjects.requireNonNull(arrowFnExtractor.functionNode);
     }
 
     @Test

@@ -4,6 +4,7 @@
 
 package org.mozilla.javascript.tests.commonjs.module.provider;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -24,10 +25,10 @@ public class UrlModuleSourceProviderTest {
     @Test
     public void testModuleNotModified() throws Exception {
         // given
-        final Path filePath = Files.createTempFile("test", ".js");
+        final File file = File.createTempFile("test", ".js");
         final ModuleSource result;
         try {
-            final URI moduleURI = getModuleURI(filePath);
+            final URI moduleURI = getModuleURI(file);
             final UrlModuleSourceProvider sourceProvider =
                     new UrlModuleSourceProvider(null, null, ALWAYS_CHECK_EXPIRED, null);
             final ModuleSource moduleSource = sourceProvider.loadSource(moduleURI, null, null);
@@ -36,7 +37,7 @@ public class UrlModuleSourceProviderTest {
             // when
             result = sourceProvider.loadSource(moduleURI, null, moduleSource.getValidator());
         } finally {
-            Files.deleteIfExists(filePath);
+            file.delete();
         }
 
         // then
@@ -46,21 +47,21 @@ public class UrlModuleSourceProviderTest {
     @Test
     public void testModuleModified() throws Exception {
         // given
-        final Path filePath = Files.createTempFile("test", ".js");
+        final File file = File.createTempFile("test", ".js");
         final ModuleSource result;
         try {
-            final URI moduleURI = getModuleURI(filePath);
+            final URI moduleURI = getModuleURI(file);
             final UrlModuleSourceProvider sourceProvider =
                     new UrlModuleSourceProvider(null, null, ALWAYS_CHECK_EXPIRED, null);
             final ModuleSource moduleSource = sourceProvider.loadSource(moduleURI, null, null);
             moduleSource.getReader().close();
 
             // when
-            Files.setLastModifiedTime(filePath, FileTime.fromMillis(Long.MAX_VALUE));
+            file.setLastModified(Long.MAX_VALUE);
             result = sourceProvider.loadSource(moduleURI, null, moduleSource.getValidator());
             result.getReader().close();
         } finally {
-            Files.deleteIfExists(filePath);
+            file.delete();
         }
 
         // then
@@ -68,8 +69,8 @@ public class UrlModuleSourceProviderTest {
         Assert.assertNotEquals("Modified", ModuleSourceProvider.NOT_MODIFIED, result);
     }
 
-    private static URI getModuleURI(final Path filePath) throws URISyntaxException {
-        final String uriString = filePath.toUri().toASCIIString();
+    private static URI getModuleURI(final File file) throws URISyntaxException {
+        final String uriString = file.toURI().toASCIIString();
         return new URI(uriString.substring(0, uriString.lastIndexOf('.')));
     }
 

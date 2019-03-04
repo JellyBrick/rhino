@@ -38,6 +38,7 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.compat.CompatMaps;
 import org.mozilla.javascript.drivers.TestUtils;
 import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.SourceReader;
@@ -360,7 +361,7 @@ public class Test262SuiteTest {
                 if (!testCase.hasFlag("onlyStrict") || testCase.hasFlag("raw")) {
                     result.add(new Object[]{caseShortPath, optLevel, false, testCase, markedAsFailing});
                     if (markedAsFailing) {
-                        Integer count = EXCLUDED_TESTS.computeIfAbsent(testCase.file, k -> 0);
+                        Integer count = CompatMaps.computeIfAbsent(EXCLUDED_TESTS, testCase.file, k -> 0);
                         count += 1;
                         EXCLUDED_TESTS.put(testCase.file, count);
                     }
@@ -368,7 +369,7 @@ public class Test262SuiteTest {
                 if (!testCase.hasFlag("noStrict") && !testCase.hasFlag("raw")) {
                     result.add(new Object[]{caseShortPath, optLevel, true, testCase, markedAsFailing});
                     if (markedAsFailing) {
-                        Integer count = EXCLUDED_TESTS.computeIfAbsent(testCase.file, k -> 0);
+                        Integer count = CompatMaps.computeIfAbsent(EXCLUDED_TESTS, testCase.file, k -> 0);
                         count += 1;
                         EXCLUDED_TESTS.put(testCase.file, count);
                     }

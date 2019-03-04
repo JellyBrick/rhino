@@ -6,13 +6,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.compat.CompatOptional;
 
 /**
  *
@@ -75,7 +75,7 @@ public class WrapFactoryTest {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("test", object);
       ScriptableObject.putProperty(scope, "map", map);
-      ScriptableObject.putProperty(scope, "object", Optional.of(object));
+      ScriptableObject.putProperty(scope, "object", CompatOptional.of(object));
       ScriptableObject.putProperty(scope, "test", object);
 
       //execute script
