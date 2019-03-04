@@ -13,6 +13,7 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.StackStyle;
+import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.Global;
 
 public class StackTraceExtensionTest
@@ -53,7 +54,7 @@ public class StackTraceExtensionTest
             Global global = new Global(cx);
             Scriptable root = cx.newObject(global);
 
-            FileReader rdr = new FileReader("testsrc/jstests/extensions/stack-traces.js");
+            FileReader rdr = FileProvider.getInstance().getReader("testsrc/jstests/extensions/stack-traces.js");
 
             try {
                 cx.evaluateReader(root, rdr, "stack-traces.js", 1, null);
