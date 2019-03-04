@@ -19,7 +19,7 @@ public class AndroidFileProvider extends FileProvider {
 
   private final File tempDir = new File(InstrumentationRegistry.getContext().getCacheDir(), "temp");
   private final File assetsDir = new File(InstrumentationRegistry.getContext().getFilesDir(), "testassets");
-  private final File assetsName = new File(InstrumentationRegistry.getContext().getFilesDir(), "testassets.sha1");
+  private final File assetsName = new File(InstrumentationRegistry.getContext().getFilesDir(), "testassets.name");
 
   private boolean assetsChecked = false;
 
@@ -65,6 +65,7 @@ public class AndroidFileProvider extends FileProvider {
     }
 
     if (!equals(except, actual)) {
+      Log.d(LOG_TAG, "except = " + except + ", actual = " + actual);
       Log.d(LOG_TAG, "Copy test assets");
 
       FileUtils.forceMkdir(assetsDir);
@@ -79,6 +80,8 @@ public class AndroidFileProvider extends FileProvider {
       zipFile.extractAll(assetsDir.getPath());
 
       FileUtils.writeStringToFile(assetsName, actual, "UTF-8");
+
+      Log.d(LOG_TAG, "All test assets are copied");
     } else {
       Log.d(LOG_TAG, "Test assets UP-TO-DATE");
     }
