@@ -42,11 +42,11 @@ android {
                         "org/mozilla/javascript/tests/Bug782363Test.java",
                         // java.lang.StackOverflowError
                         "org/mozilla/javascript/tests/ConsStringTest.java",
-                        // No generated class
+                        // Codegen is not available
                         "org/mozilla/javascript/tests/CodegenTest.java",
-                        // No generated class
+                        // Codegen is not available
                         "org/mozilla/javascript/tests/GeneratedClassNameTest.java",
-                        // No generated class
+                        // Codegen is not available
                         "org/mozilla/javascript/tests/GeneratedMethodNameTest.java",
                         // Default method is not supported
                         "org/mozilla/javascript/tests/java8/CallDefaultMethodTest.java"
@@ -73,7 +73,6 @@ android {
 
 dependencies {
     androidTestImplementation project(":core")
-    androidTestImplementation project(":xml")
     androidTestImplementation "junit:junit:4.12"
     androidTestImplementation "androidx.test:core:1.1.0"
     androidTestImplementation "androidx.test:runner:1.1.1"
