@@ -9,8 +9,8 @@ import org.mozilla.javascript.drivers.LanguageVersion;
 import org.mozilla.javascript.drivers.RhinoTest;
 import org.mozilla.javascript.drivers.ScriptTestsBase;
 
-@RhinoTest("testsrc/jstests/es6/weakmap.js")
+@RhinoTest("testsrc/jstests/es6/symbols2.js")
 @LanguageVersion(Context.VERSION_ES6)
-public class NativeWeakMapTest extends ScriptTestsBase
+public class Symbol2Test extends ScriptTestsBase
 {
 }

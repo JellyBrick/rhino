@@ -2892,7 +2892,8 @@ public class ScriptRuntime {
             return false;
         }
         if (value instanceof ScriptableObject) {
-            return "object".equals(((ScriptableObject)value).getTypeOf());
+            String type = ((ScriptableObject)value).getTypeOf();
+            return "object".equals(type) || "function".equals(type);
         }
         if (value instanceof Scriptable) {
             return (!(value instanceof Callable));
@@ -4106,7 +4107,7 @@ public class ScriptRuntime {
     public static Object[] getArrayElements(Scriptable object)
     {
         Context cx = Context.getContext();
-        long longLen = NativeArray.getLengthProperty(cx, object);
+        long longLen = NativeArray.getLengthProperty(cx, object, false);
         if (longLen > Integer.MAX_VALUE) {
             // arrays beyond  MAX_INT is not in Java in any case
             throw new IllegalArgumentException();
