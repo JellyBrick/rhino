@@ -1196,7 +1196,7 @@ public class ScriptRuntime {
         return ctor.construct(cx, scope, args);
     }
 
-    static Scriptable newNativeError(Context cx, Scriptable scope,
+    public static Scriptable newNativeError(Context cx, Scriptable scope,
                                      TopLevel.NativeErrors type, Object[] args)
     {
         scope = ScriptableObject.getTopLevelScope(scope);
