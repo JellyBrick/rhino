@@ -10,7 +10,6 @@ import java.util.List;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Symbol;
 
 /**
  * Matrix: An example host object class that implements the Scriptable interface.
@@ -157,16 +156,6 @@ public class Matrix implements Scriptable {
      */
     @Override
     public void put(String name, Scriptable start, Object value) {
-    }
-
-
-    /**
-     * Set a named property.
-     *
-     * We do nothing here, so all properties are effectively read-only.
-     */
-    @Override
-    public void put(Symbol symbol, Scriptable start, Object value) {
     }
 
     /**

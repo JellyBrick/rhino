@@ -24,6 +24,7 @@ import org.mozilla.javascript.xml.XMLObject;
  * @see XML
  */
 abstract class XMLObjectImpl extends XMLObject {
+    private static final long serialVersionUID = -2553684605738101761L;
     private static final Object XMLOBJECT_TAG = "XMLObject";
     private XMLLibImpl lib;
     private boolean prototypeFlag;
@@ -619,9 +620,7 @@ abstract class XMLObjectImpl extends XMLObject {
         }
 
         // All (XML|XMLList).prototype methods require thisObj to be XML
-        if (!(thisObj instanceof XMLObjectImpl))
-            throw incompatibleCallError(f);
-        XMLObjectImpl realThis = (XMLObjectImpl)thisObj;
+        XMLObjectImpl realThis = ensureType(thisObj, XMLObjectImpl.class, f);
 
         XML xml = realThis.getXML();
         switch (id) {

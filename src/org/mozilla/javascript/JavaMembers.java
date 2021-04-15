@@ -41,7 +41,7 @@ class JavaMembers
             Context cx = ContextFactory.getGlobal().enterContext();
             ClassShutter shutter = cx.getClassShutter();
             if (shutter != null && !shutter.visibleToScripts(cl.getName())) {
-                throw Context.reportRuntimeError1("msg.access.prohibited",
+                throw Context.reportRuntimeErrorById("msg.access.prohibited",
                                                   cl.getName());
             }
             this.members = new HashMap<String,Object>();
@@ -92,7 +92,7 @@ class JavaMembers
                 if (bp.getter == null)
                     return Scriptable.NOT_FOUND;
                 rval = bp.getter.invoke(javaObject, Context.emptyArgs);
-                type = bp.getter.getReturnType();
+                type = bp.getter.method().getReturnType();
             } else {
                 Field field = (Field) member;
                 rval = field.get(isStatic ? null : javaObject);
@@ -132,7 +132,7 @@ class JavaMembers
             // main setter. Otherwise, let the NativeJavaMethod decide which
             // setter to use:
             if (bp.setters == null || value == null) {
-                Class<?> setType = bp.setter.getParameterTypes()[0];
+                Class<?> setType = bp.setter.argTypes[0];
                 Object[] args = { Context.jsToJava(value, setType) };
                 try {
                     bp.setter.invoke(javaObject, args);
@@ -150,7 +150,7 @@ class JavaMembers
             if (!(member instanceof Field)) {
                 String str = (member == null) ? "msg.java.internal.private"
                                               : "msg.java.method.assign";
-                throw Context.reportRuntimeError1(str, name);
+                throw Context.reportRuntimeErrorById(str, name);
             }
             Field field = (Field)member;
             Object javaValue = Context.jsToJava(value, field.getType());
@@ -163,7 +163,7 @@ class JavaMembers
                 }
                 throw Context.throwAsScriptRuntimeEx(accessEx);
             } catch (IllegalArgumentException argEx) {
-                throw Context.reportRuntimeError3(
+                throw Context.reportRuntimeErrorById(
                     "msg.java.internal.field.type",
                     value.getClass().getName(), field,
                     javaObject.getClass().getName());
@@ -246,7 +246,7 @@ class JavaMembers
 
         if (methodsOrCtors != null) {
             for (MemberBox methodsOrCtor : methodsOrCtors) {
-                Class<?>[] type = methodsOrCtor.getParameterTypes();
+                Class<?>[] type = methodsOrCtor.argTypes;
                 String sig = liveConnectSignature(type);
                 if (sigStart + sig.length() == name.length()
                         && name.regionMatches(sigStart, sig, 0, sig.length()))
@@ -609,7 +609,7 @@ class JavaMembers
                             if (getter != null) {
                                 // We have a getter. Now, do we have a matching
                                 // setter?
-                                Class<?> type = getter.getReturnType();
+                                Class<?> type = getter.method().getReturnType();
                                 setter = extractSetMethod(type, njmSet.methods,
                                                             isStatic);
                             } else {
@@ -630,10 +630,7 @@ class JavaMembers
             }
 
             // Add the new bean properties.
-            for (String key: toAdd.keySet()) {
-                Object value = toAdd.get(key);
-                ht.put(key, value);
-            }
+            ht.putAll(toAdd);
         }
 
         // Reflect constructors
@@ -697,7 +694,7 @@ class JavaMembers
         return cl.getFields();
     }
 
-    private MemberBox findGetter(boolean isStatic, Map<String,Object> ht, String prefix,
+    private static MemberBox findGetter(boolean isStatic, Map<String,Object> ht, String prefix,
                                  String propertyName)
     {
         String getterName = prefix.concat(propertyName);
@@ -720,8 +717,8 @@ class JavaMembers
         for (MemberBox method : methods) {
             // Does getter method have an empty parameter list with a return
             // value (eg. a getSomething() or isSomething())?
-            if (method.getParameterCount() == 0 && (!isStatic || method.isStatic())) {
-                Class<?> type = method.getReturnType();
+            if (method.argTypes.length == 0 && (!isStatic || method.isStatic())) {
+                Class<?> type = method.method().getReturnType();
                 if (type != Void.TYPE) {
                     return method;
                 }
@@ -745,7 +742,7 @@ class JavaMembers
         for (int pass = 1; pass <= 2; ++pass) {
             for (MemberBox method : methods) {
                 if (!isStatic || method.isStatic()) {
-                    Class<?>[] params = method.getParameterTypes();
+                    Class<?>[] params = method.argTypes;
                     if (params.length == 1) {
                         if (pass == 1) {
                             if (params[0] == type) {
@@ -770,8 +767,8 @@ class JavaMembers
 
         for (MemberBox method : methods) {
             if (!isStatic || method.isStatic()) {
-                if (method.getReturnType() == Void.TYPE) {
-                    if (method.getParameterCount() == 1) {
+                if (method.method().getReturnType() == Void.TYPE) {
+                    if (method.argTypes.length == 1) {
                         return method;
                     }
                 }
@@ -855,7 +852,7 @@ class JavaMembers
 
     RuntimeException reportMemberNotFound(String memberName)
     {
-        return Context.reportRuntimeError2(
+        return Context.reportRuntimeErrorById(
             "msg.java.member.not.found", cl.getName(), memberName);
     }
 
@@ -904,7 +901,7 @@ class FieldAndMethods extends NativeJavaMethod
             rval = field.get(javaObject);
             type = field.getType();
         } catch (IllegalAccessException accEx) {
-            throw Context.reportRuntimeError1(
+            throw Context.reportRuntimeErrorById(
                 "msg.java.internal.private", field.getName());
         }
         Context cx  = Context.getContext();

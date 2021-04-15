@@ -9,6 +9,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -16,8 +18,11 @@ import java.util.ArrayList;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.tools.ToolErrorReporter;
 import org.mozilla.javascript.tools.shell.Global;
 import org.mozilla.javascript.tools.shell.Main;
 import org.mozilla.javascript.tools.shell.ShellContextFactory;
@@ -26,6 +31,24 @@ import org.mozilla.javascript.tools.shell.ShellContextFactory;
  * @version $Id: ShellTest.java,v 1.14 2011/03/29 15:17:49 hannes%helma.at Exp $
  */
 public class ShellTest {
+    private static File frameworkFile;
+    private static Script frameworkScript;
+
+    public static void cacheFramework() {
+        frameworkFile = new File("testsrc/tests/shell.js");
+        if (!frameworkFile.exists()) {
+            throw new AssertionError("Can't find test framework file " + frameworkFile);
+        }
+        Context cx = Context.enter();
+        try {
+            frameworkScript = cx.compileReader(new FileReader(frameworkFile), "shell.js", 1, null);
+        } catch (IOException ioe) {
+            throw new AssertionError("Can't read test framework file " + frameworkFile);
+        } finally {
+            Context.exit();
+        }
+    }
+
     public static final FileFilter DIRECTORY_FILTER = new FileFilter() {
         public boolean accept(File pathname)
         {
@@ -50,8 +73,17 @@ public class ShellTest {
     }
 
     private static void runFileIfExists(Context cx, Scriptable global, File f) {
-        if(f.isFile()) {
-            Main.processFileNoThrow(cx, global, f.getPath());
+        if (frameworkFile.equals(f)) {
+            try {
+                frameworkScript.exec(cx, global);
+            } catch (RhinoException re) {
+                // Error in test framework means that the whole world is broken.
+                throw new AssertionError(re);
+            }
+        } else {
+            if (f.isFile()) {
+                Main.processFileNoThrow(cx, global, f.getPath());
+            }
         }
     }
 
@@ -92,7 +124,7 @@ public class ShellTest {
 
         public abstract void failed(String s);
         public abstract void threw(Throwable t);
-        public abstract void timedOut();
+        public abstract void timedOut(long timeoutMillis);
         public abstract void exitCodesWere(int expected, int actual);
         public abstract void outputWas(String s);
 
@@ -129,9 +161,9 @@ public class ShellTest {
                     }
                 }
                 @Override
-                public void timedOut() {
+                public void timedOut(long timeoutMillis) {
                     for (int i=0; i<array.length; i++) {
-                        array[i].timedOut();
+                        array[i].timedOut(timeoutMillis);
                     }
                 }
             };
@@ -323,7 +355,7 @@ public class ShellTest {
             if(!testState.finished)
             {
                 callStop(t);
-                status.timedOut();
+                status.timedOut(parameters.getTimeoutMilliseconds());
             }
         }
         int expectedExitCode = 0;
@@ -331,6 +363,90 @@ public class ShellTest {
         status.outputWas(new String(out.toByteArray()));
         BufferedReader r = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(out.toByteArray())));
+        String failures = "";
+        for(;;)
+        {
+            String s = r.readLine();
+            if(s == null)
+            {
+                break;
+            }
+            if(s.indexOf("FAILED!") != -1)
+            {
+                failures += s + '\n';
+            }
+            int expex = s.indexOf("EXPECT EXIT CODE ");
+            if(expex != -1)
+            {
+                expectedExitCode = s.charAt(expex + "EXPECT EXIT CODE ".length()) - '0';
+            }
+        }
+        if (thrown[0] != null)
+        {
+            status.threw(thrown[0]);
+        }
+        status.exitCodesWere(expectedExitCode, testState.exitCode);
+        if(failures != "")
+        {
+            status.failed(failures);
+        }
+    }
+
+    public static void runNoFork(final ShellContextFactory shellContextFactory,
+        final File jsFile, final Parameters parameters,
+        final Status status) throws Exception {
+        final Global global = new Global();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final PrintStream p = new PrintStream(out);
+        global.setOut(p);
+        global.setErr(p);
+        global.defineFunctionProperties(
+            new String[] { "options" }, ShellTest.class,
+            ScriptableObject.DONTENUM | ScriptableObject.PERMANENT |
+                ScriptableObject.READONLY);
+        // test suite expects keywords to be disallowed as identifiers
+        shellContextFactory.setAllowReservedKeywords(false);
+        final TestState testState = new TestState();
+        if (jsFile.getName().endsWith("-n.js")) {
+            status.setNegative();
+        }
+        final Throwable thrown[] = {null};
+
+        try {
+            shellContextFactory.call(cx ->
+            {
+                status.running(jsFile);
+                testState.errors = new ErrorReporterWrapper(cx.getErrorReporter());
+                cx.setErrorReporter(testState.errors);
+                global.init(cx);
+                try {
+                    runFileIfExists(cx, global,
+                        new File(jsFile.getParentFile().getParentFile().getParentFile(),
+                            "shell.js"));
+                    runFileIfExists(cx, global,
+                        new File(jsFile.getParentFile().getParentFile(), "shell.js"));
+                    runFileIfExists(cx, global, new File(jsFile.getParentFile(), "shell.js"));
+                    runFileIfExists(cx, global, jsFile);
+                    status
+                        .hadErrors(jsFile, testState.errors.errors.toArray(new Status.JsError[0]));
+                } catch (Throwable t) {
+                    status.threw(t);
+                }
+                return null;
+            });
+        } catch (Error t) {
+            thrown[0] = t;
+        } catch (RuntimeException t) {
+            thrown[0] = t;
+        } finally {
+            testState.finished = true;
+        }
+
+        int expectedExitCode = 0;
+        p.flush();
+        status.outputWas(new String(out.toByteArray()));
+        BufferedReader r = new BufferedReader(new InputStreamReader(
+            new ByteArrayInputStream(out.toByteArray())));
         String failures = "";
         for(;;)
         {

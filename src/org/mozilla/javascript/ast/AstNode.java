@@ -80,9 +80,7 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
      * and so on
      */
     protected AstNode inlineComment;
-
-    private static Map<Integer,String> operatorNames =
-            new HashMap<Integer,String>();
+    private static Map<Integer, String> operatorNames = new HashMap<Integer, String>();
 
     static {
         operatorNames.put(Token.IN, "in");
@@ -112,6 +110,7 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
         operatorNames.put(Token.MUL, "*");
         operatorNames.put(Token.DIV, "/");
         operatorNames.put(Token.MOD, "%");
+        operatorNames.put(Token.EXP, "**");
         operatorNames.put(Token.NOT, "!");
         operatorNames.put(Token.BITNOT, "~");
         operatorNames.put(Token.POS, "+");
@@ -130,13 +129,13 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
         operatorNames.put(Token.ASSIGN_DIV, "/=");
         operatorNames.put(Token.ASSIGN_MOD, "%=");
         operatorNames.put(Token.ASSIGN_BITXOR, "^=");
+        operatorNames.put(Token.ASSIGN_EXP, "**=");
         operatorNames.put(Token.VOID, "void");
     }
 
     public static class PositionComparator implements Comparator<AstNode>, Serializable {
         private static final long serialVersionUID = 1L;
-
-        /**
+       /**
          * Sorts nodes by (relative) start position.  The start positions are
          * relative to their parent, so this comparator is only meaningful for
          * comparing siblings.
@@ -254,12 +253,12 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
 
         // Convert position back to absolute.
         if (this.parent != null) {
-            setRelative(-this.parent.getPosition());
+            setRelative(-this.parent.getAbsolutePosition());
         }
 
         this.parent = parent;
         if (parent != null) {
-            setRelative(parent.getPosition());
+            setRelative(parent.getAbsolutePosition());
         }
     }
 
@@ -440,6 +439,7 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
           case Token.WITH:
           case Token.WITHEXPR:
           case Token.YIELD:
+          case Token.YIELD_STAR:
             return true;
 
           default:
@@ -569,7 +569,8 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
         public String toString() {
             return buffer.toString();
         }
-        private String makeIndent(int depth) {
+
+        private static String makeIndent(int depth) {
             StringBuilder sb = new StringBuilder(DEBUG_INDENT * depth);
             for (int i = 0; i < (DEBUG_INDENT * depth); i++) {
                 sb.append(" ");

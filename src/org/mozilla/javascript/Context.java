@@ -10,23 +10,19 @@ package org.mozilla.javascript;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import org.mozilla.classfile.ClassFileFormatException;
 import org.mozilla.javascript.ast.AstRoot;
@@ -59,6 +55,7 @@ import org.mozilla.javascript.xml.XMLLib;
  */
 
 public class Context
+    implements Closeable
 {
     /**
      * Language versions.
@@ -131,8 +128,8 @@ public class Context
     public static final int VERSION_ES6 =      200;
 
     /**
-     * Controls behaviour of <tt>Date.prototype.getYear()</tt>.
-     * If <tt>hasFeature(FEATURE_NON_ECMA_GET_YEAR)</tt> returns true,
+     * Controls behaviour of <code>Date.prototype.getYear()</code>.
+     * If <code>hasFeature(FEATURE_NON_ECMA_GET_YEAR)</code> returns true,
      * Date.prototype.getYear subtructs 1900 only if 1900 &lt;= date &lt; 2000.
      * The default behavior of {@link #hasFeature(int)} is always to subtruct
      * 1900 as rquired by ECMAScript B.2.4.
@@ -141,9 +138,9 @@ public class Context
 
     /**
      * Control if member expression as function name extension is available.
-     * If <tt>hasFeature(FEATURE_MEMBER_EXPR_AS_FUNCTION_NAME)</tt> returns
-     * true, allow <tt>function memberExpression(args) { body }</tt> to be
-     * syntax sugar for <tt>memberExpression = function(args) { body }</tt>,
+     * If <code>hasFeature(FEATURE_MEMBER_EXPR_AS_FUNCTION_NAME)</code> returns
+     * true, allow <code>function memberExpression(args) { body }</code> to be
+     * syntax sugar for <code>memberExpression = function(args) { body }</code>,
      * when memberExpression is not a simple identifier.
      * See ECMAScript-262, section 11.2 for definition of memberExpression.
      * By default {@link #hasFeature(int)} returns false.
@@ -152,7 +149,7 @@ public class Context
 
     /**
      * Control if reserved keywords are treated as identifiers.
-     * If <tt>hasFeature(RESERVED_KEYWORD_AS_IDENTIFIER)</tt> returns true,
+     * If <code>hasFeature(RESERVED_KEYWORD_AS_IDENTIFIER)</code> returns true,
      * treat future reserved keyword (see  Ecma-262, section 7.5.3) as ordinary
      * identifiers but warn about this usage.
      *
@@ -161,14 +158,14 @@ public class Context
     public static final int FEATURE_RESERVED_KEYWORD_AS_IDENTIFIER = 3;
 
     /**
-     * Control if <tt>toString()</tt> should returns the same result
-     * as  <tt>toSource()</tt> when applied to objects and arrays.
-     * If <tt>hasFeature(FEATURE_TO_STRING_AS_SOURCE)</tt> returns true,
-     * calling <tt>toString()</tt> on JS objects gives the same result as
-     * calling <tt>toSource()</tt>. That is it returns JS source with code
+     * Control if <code>toString()</code> should returns the same result
+     * as  <code>toSource()</code> when applied to objects and arrays.
+     * If <code>hasFeature(FEATURE_TO_STRING_AS_SOURCE)</code> returns true,
+     * calling <code>toString()</code> on JS objects gives the same result as
+     * calling <code>toSource()</code>. That is it returns JS source with code
      * to create an object with all enumeratable fields of the original object
-     * instead of printing <tt>[object <i>result of
-     * {@link Scriptable#getClassName()}</i>]</tt>.
+     * instead of printing <code>[object <i>result of
+     * {@link Scriptable#getClassName()}</i>]</code>.
      * <p>
      * By default {@link #hasFeature(int)} returns true only if
      * the current JS version is set to {@link #VERSION_1_2}.
@@ -176,18 +173,18 @@ public class Context
     public static final int FEATURE_TO_STRING_AS_SOURCE = 4;
 
     /**
-     * Control if properties <tt>__proto__</tt> and <tt>__parent__</tt>
+     * Control if properties <code>__proto__</code> and <code>__parent__</code>
      * are treated specially.
-     * If <tt>hasFeature(FEATURE_PARENT_PROTO_PROPERTIES)</tt> returns true,
-     * treat <tt>__parent__</tt> and <tt>__proto__</tt> as special properties.
+     * If <code>hasFeature(FEATURE_PARENT_PROTO_PROPERTIES)</code> returns true,
+     * treat <code>__parent__</code> and <code>__proto__</code> as special properties.
      * <p>
      * The properties allow to query and set scope and prototype chains for the
      * objects. The special meaning of the properties is available
      * only when they are used as the right hand side of the dot operator.
-     * For example, while <tt>x.__proto__ = y</tt> changes the prototype
-     * chain of the object <tt>x</tt> to point to <tt>y</tt>,
-     * <tt>x["__proto__"] = y</tt> simply assigns a new value to the property
-     * <tt>__proto__</tt> in <tt>x</tt> even when the feature is on.
+     * For example, while <code>x.__proto__ = y</code> changes the prototype
+     * chain of the object <code>x</code> to point to <code>y</code>,
+     * <code>x["__proto__"] = y</code> simply assigns a new value to the property
+     * <code>__proto__</code> in <code>x</code> even when the feature is on.
      *
      * By default {@link #hasFeature(int)} returns true.
      */
@@ -347,6 +344,45 @@ public class Context
      */
     public static final int FEATURE_LITTLE_ENDIAN = 19;
 
+    /**
+     * Configure the XMLProcessor to parse XML with security features or not.
+     * Security features include not fetching remote entity references and disabling XIncludes
+     * @since 1.7 Release 12
+     */
+    public static final int FEATURE_ENABLE_XML_SECURE_PARSING = 20;
+
+    /**
+     * Configure whether the entries in a Java Map can be accessed by properties.
+     *
+     * Not enabled:
+     *
+     *   var map = new java.util.HashMap();
+     *   map.put('foo', 1);
+     *   map.foo; // undefined
+     *
+     * Enabled:
+     *
+     *   var map = new java.util.HashMap();
+     *   map.put('foo', 1);
+     *   map.foo; // 1
+     *
+     * WARNING: This feature is similar to the one in Nashorn, but incomplete.
+     *
+     * 1. A entry has priority over method.
+     *
+     *   map.put("put", "abc");
+     *   map.put;  // abc
+     *   map.put("put", "efg"); // ERROR
+     *
+     * 2. The distinction between numeric keys and string keys is ambiguous.
+     *
+     *   map.put('1', 123);
+     *   map['1']; // Not found. This means `map[1]`.
+     *
+     * @since 1.7 Release 14
+     */
+    public static final int FEATURE_ENABLE_JAVA_MAP_ACCESS = 21;
+
     public static final String languageVersionProperty = "language version";
     public static final String errorReporterProperty   = "error reporter";
 
@@ -422,7 +458,7 @@ public class Context
      */
     public static Context enter()
     {
-        return enter(null);
+        return enter(null, ContextFactory.getGlobal());
     }
 
     /**
@@ -499,11 +535,16 @@ public class Context
         }
     }
 
+    @Override
+    public void close() {
+        exit();
+    }
+
     /**
      * Call {@link ContextAction#run(Context cx)}
      * using the Context instance associated with the current thread.
      * If no Context is associated with the thread, then
-     * <tt>ContextFactory.getGlobal().makeContext()</tt> will be called to
+     * <code>ContextFactory.getGlobal().makeContext()</code> will be called to
      * construct new Context instance. The instance will be temporary
      * associated with the thread during call to
      * {@link ContextAction#run(Context)}.
@@ -528,7 +569,7 @@ public class Context
      * new Context instance. The instance will be temporary associated
      * with the thread during call to {@link ContextAction#run(Context)}.
      * <p>
-     * It is allowed but not advisable to use null for <tt>factory</tt>
+     * It is allowed but not advisable to use null for <code>factory</code>
      * argument in which case the global static singleton ContextFactory
      * instance will be used to create new context instances.
      * @see ContextFactory#call(ContextAction)
@@ -576,9 +617,7 @@ public class Context
                 Method m = cl.getMethod("attachTo", sig);
                 m.invoke(listener, args);
             } catch (Exception ex) {
-                RuntimeException rex = new RuntimeException();
-                Kit.initCause(rex, ex);
-                throw rex;
+                throw new RuntimeException(ex);
             }
             return;
         }
@@ -621,9 +660,9 @@ public class Context
      * including calling {@link #enter()} and {@link #exit()} methods will
      * throw an exception.
      * <p>
-     * If <tt>sealKey</tt> is not null, calling
+     * If <code>sealKey</code> is not null, calling
      * {@link #unseal(Object sealKey)} with the same key unseals
-     * the object. If <tt>sealKey</tt> is null, unsealing is no longer possible.
+     * the object. If <code>sealKey</code> is null, unsealing is no longer possible.
      *
      * @see #isSealed()
      * @see #unseal(Object)
@@ -637,8 +676,8 @@ public class Context
 
     /**
      * Unseal previously sealed Context object.
-     * The <tt>sealKey</tt> argument should not be null and should match
-     * <tt>sealKey</tt> suplied with the last call to
+     * The <code>sealKey</code> argument should not be null and should match
+     * <code>sealKey</code> suplied with the last call to
      * {@link #seal(Object)} or an exception will be thrown.
      *
      * @see #isSealed()
@@ -737,42 +776,8 @@ public class Context
      * @return a string that encodes the product, language version, release
      *         number, and date.
      */
-    public final String getImplementationVersion()
-    {
-        if (implementationVersion == null) {
-            Enumeration<URL> urls;
-            try {
-                urls = Context.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-            } catch (IOException ioe) {
-                return null;
-            }
-
-            // There will be many manifests in the world -- enumerate all of them until we find the right one.
-            while (urls.hasMoreElements()) {
-                URL metaUrl = urls.nextElement();
-                InputStream is = null;
-                try {
-                    is = metaUrl.openStream();
-                    Manifest mf = new Manifest(is);
-                    Attributes attrs = mf.getMainAttributes();
-                    if ("Mozilla Rhino".equals(attrs.getValue("Implementation-Title"))) {
-                        implementationVersion =
-                            "Rhino " + attrs.getValue("Implementation-Version") + " " + attrs.getValue("Built-Date").replaceAll("-", " ");
-                        return implementationVersion;
-                    }
-                } catch (IOException e) {
-                    // Ignore this unlikely event
-                } finally {
-                    try {
-                        if (is != null) is.close();
-                    } catch (IOException e) {
-                        // Ignore this even unlikelier event
-                    }
-                }
-            }
-        }
-
-        return implementationVersion;
+    public final String getImplementationVersion() {
+        return ImplementationVersion.get();
     }
 
     /**
@@ -1009,40 +1014,66 @@ public class Context
         throw new EvaluatorException(message, sourceName, lineno, lineSource, lineOffset);
     }
 
-    static EvaluatorException reportRuntimeError0(String messageId)
+    static EvaluatorException reportRuntimeErrorById(String messageId, Object... args)
     {
-        String msg = ScriptRuntime.getMessage0(messageId);
+        String msg = ScriptRuntime.getMessageById(messageId, args);
         return reportRuntimeError(msg);
     }
 
+    /**
+     * @deprecated Use {@link #reportRuntimeErrorById(String messageId, Object... args)} instead
+     */
+    @Deprecated
+    static EvaluatorException reportRuntimeError0(String messageId)
+    {
+        String msg = ScriptRuntime.getMessageById(messageId);
+        return reportRuntimeError(msg);
+    }
+
+    /**
+     * @deprecated Use {@link #reportRuntimeErrorById(String messageId, Object... args)} instead
+     */
+    @Deprecated
     static EvaluatorException reportRuntimeError1(String messageId,
                                                   Object arg1)
     {
-        String msg = ScriptRuntime.getMessage1(messageId, arg1);
+        String msg = ScriptRuntime.getMessageById(messageId, arg1);
         return reportRuntimeError(msg);
     }
 
+    /**
+     * @deprecated Use {@link #reportRuntimeErrorById(String messageId, Object... args)} instead
+     */
+    @Deprecated
     static EvaluatorException reportRuntimeError2(String messageId,
                                                   Object arg1, Object arg2)
     {
-        String msg = ScriptRuntime.getMessage2(messageId, arg1, arg2);
+        String msg = ScriptRuntime.getMessageById(messageId, arg1, arg2);
         return reportRuntimeError(msg);
     }
 
+    /**
+     * @deprecated Use {@link #reportRuntimeErrorById(String messageId, Object... args)} instead
+     */
+    @Deprecated
     static EvaluatorException reportRuntimeError3(String messageId,
                                                   Object arg1, Object arg2,
                                                   Object arg3)
     {
-        String msg = ScriptRuntime.getMessage3(messageId, arg1, arg2, arg3);
+        String msg = ScriptRuntime.getMessageById(messageId, arg1, arg2, arg3);
         return reportRuntimeError(msg);
     }
 
+    /**
+     * @deprecated Use {@link #reportRuntimeErrorById(String messageId, Object... args)} instead
+     */
+    @Deprecated
     static EvaluatorException reportRuntimeError4(String messageId,
                                                   Object arg1, Object arg2,
                                                   Object arg3, Object arg4)
     {
         String msg
-            = ScriptRuntime.getMessage4(messageId, arg1, arg2, arg3, arg4);
+            = ScriptRuntime.getMessageById(messageId, arg1, arg2, arg3, arg4);
         return reportRuntimeError(msg);
     }
 
@@ -1477,8 +1508,9 @@ public class Context
             // For compatibility IllegalArgumentException can not be thrown here
             lineno = 0;
         }
-        return (Script) compileImpl(null, in, null, sourceName, lineno,
-                                    securityDomain, false, null, null);
+
+        return (Script) compileImpl(null, Kit.readReader(in), sourceName, lineno,
+                securityDomain, false, null, null);
     }
 
     /**
@@ -1516,7 +1548,7 @@ public class Context
                                Object securityDomain)
     {
         try {
-            return (Script) compileImpl(null, null, source, sourceName, lineno,
+            return (Script) compileImpl(null, source, sourceName, lineno,
                                         securityDomain, false,
                                         compiler, compilationErrorReporter);
         } catch (IOException ioe) {
@@ -1557,7 +1589,7 @@ public class Context
                                    Object securityDomain)
     {
         try {
-            return (Function) compileImpl(scope, null, source, sourceName,
+            return (Function) compileImpl(scope, source, sourceName,
                                           lineno, securityDomain, true,
                                           compiler, compilationErrorReporter);
         }
@@ -1828,7 +1860,7 @@ public class Context
      * <p>
      * Note that for Number instances during any arithmetic operation in
      * JavaScript the engine will always use the result of
-     * <tt>Number.doubleValue()</tt> resulting in a precision loss if
+     * <code>Number.doubleValue()</code> resulting in a precision loss if
      * the number can not fit into double.
      * <p>
      * If value is an instance of Character, it will be converted to string of
@@ -1891,10 +1923,7 @@ public class Context
         try {
             return jsToJava(value, desiredType);
         } catch (EvaluatorException ex) {
-            IllegalArgumentException
-                ex2 = new IllegalArgumentException(ex.getMessage());
-            Kit.initCause(ex2, ex);
-            throw ex2;
+            throw new IllegalArgumentException(ex.getMessage(), ex);
         }
     }
 
@@ -2093,7 +2122,7 @@ public class Context
     /**
      * Set the security controller for this context.
      * <p> SecurityController may only be set if it is currently null
-     * and {@link SecurityController#hasGlobal()} is <tt>false</tt>.
+     * and {@link SecurityController#hasGlobal()} is <code>false</code>.
      * Otherwise a SecurityException is thrown.
      * @param controller a SecurityController object
      * @throws SecurityException if there is already a SecurityController
@@ -2491,9 +2520,8 @@ public class Context
         return cx;
     }
 
-    private Object compileImpl(Scriptable scope,
-                               Reader sourceReader, String sourceString,
-                               String sourceName, int lineno,
+    protected Object compileImpl(Scriptable scope,
+                               String sourceString, String sourceName, int lineno,
                                Object securityDomain, boolean returnFunction,
                                Evaluator compiler,
                                ErrorReporter compilationErrorReporter)
@@ -2507,8 +2535,6 @@ public class Context
                 "securityDomain should be null if setSecurityController() was never called");
         }
 
-        // One of sourceReader or sourceString has to be null
-        if (!(sourceReader == null ^ sourceString == null)) Kit.codeBug();
         // scope should be given if and only if compiling function
         if (!(scope == null ^ returnFunction)) Kit.codeBug();
 
@@ -2518,14 +2544,7 @@ public class Context
             compilationErrorReporter = compilerEnv.getErrorReporter();
         }
 
-        if (debugger != null) {
-            if (sourceReader != null) {
-                sourceString = Kit.readReader(sourceReader);
-                sourceReader = null;
-            }
-        }
-
-        ScriptNode tree = parse(sourceReader, sourceString, sourceName, lineno,
+        ScriptNode tree = parse(sourceString, sourceName, lineno,
                                     compilerEnv, compilationErrorReporter, returnFunction);
 
         Object bytecode;
@@ -2537,11 +2556,11 @@ public class Context
             bytecode = compiler.compile(compilerEnv, tree, tree.getEncodedSource(), returnFunction);
         } catch (ClassFileFormatException e) {
             // we hit some class file limit, fall back to interpreter or report
-            compiler = createInterpreter();
 
             // we have to recreate the tree because the compile call might have changed the tree already
-            tree = parse(sourceReader, sourceString, sourceName, lineno,
-                            compilerEnv, compilationErrorReporter, returnFunction);
+            tree = parse(sourceString, sourceName, lineno, compilerEnv, compilationErrorReporter, returnFunction);
+
+            compiler = createInterpreter();
             bytecode = compiler.compile(compilerEnv, tree, tree.getEncodedSource(), returnFunction);
         }
 
@@ -2565,8 +2584,7 @@ public class Context
         return result;
     }
 
-    private ScriptNode parse(Reader sourceReader, String sourceString,
-            String sourceName, int lineno,
+    private ScriptNode parse(String sourceString, String sourceName, int lineno,
             CompilerEnvirons compilerEnv, ErrorReporter compilationErrorReporter,
             boolean returnFunction) throws IOException {
         Parser p = new Parser(compilerEnv, compilationErrorReporter);
@@ -2577,12 +2595,7 @@ public class Context
             p.setDefaultUseStrictDirective(true);
         }
 
-        AstRoot ast;
-        if (sourceString != null) {
-            ast = p.parse(sourceString, sourceName, lineno);
-        } else {
-            ast = p.parse(sourceReader, sourceName, lineno);
-        }
+        AstRoot ast = p.parse(sourceString, sourceName, lineno);
         if (returnFunction) {
             // parser no longer adds function to script node
             if (!(ast.getFirstChild() != null
@@ -2737,8 +2750,6 @@ public class Context
         return isTopLevelStrict || (currentActivationCall != null && currentActivationCall.isStrict);
     }
 
-    private static String implementationVersion;
-
     private final ContextFactory factory;
     private boolean sealed;
     private Object sealKey;
@@ -2794,9 +2805,6 @@ public class Context
     // For instruction counting (interpreter only)
     int instructionCount;
     int instructionThreshold;
-
-    // It can be used to return the second index-like result from function
-    int scratchIndex;
 
     // It can be used to return the second uint32 result from function
     long scratchUint32;

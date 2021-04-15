@@ -61,10 +61,12 @@ public final class NativeCall extends IdScriptableObject
             for (int i = paramCount; i < paramAndVarCount; ++i) {
                 String name = function.getParamOrVarName(i);
                 if (!super.has(name, this)) {
-                    if (function.getParamOrVarConst(i))
+                    if (function.getParamOrVarConst(i)) {
                         defineProperty(name, Undefined.instance, CONST);
-                    else
+                    } else if (!(function instanceof InterpretedFunction)
+                                || ((InterpretedFunction) function).hasFunctionNamed(name)) {
                         defineProperty(name, Undefined.instance, PERMANENT);
+                    }
                 }
             }
         }
@@ -105,7 +107,7 @@ public final class NativeCall extends IdScriptableObject
         int id = f.methodId();
         if (id == Id_constructor) {
             if (thisObj != null) {
-                throw Context.reportRuntimeError1("msg.only.from.new", "Call");
+                throw Context.reportRuntimeErrorById("msg.only.from.new", "Call");
             }
             ScriptRuntime.checkDeprecated(cx, "Call");
             NativeCall result = new NativeCall();

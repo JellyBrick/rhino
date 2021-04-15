@@ -36,7 +36,7 @@ public class NativeInt32Array
 
     public NativeInt32Array(int len)
     {
-        this(new NativeArrayBuffer(len * BYTES_PER_ELEMENT), 0, len);
+        this(new NativeArrayBuffer((double)len * BYTES_PER_ELEMENT), 0, len);
     }
 
     @Override
@@ -66,10 +66,7 @@ public class NativeInt32Array
     @Override
     protected NativeInt32Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
-        if (!(thisObj instanceof NativeInt32Array)) {
-            throw incompatibleCallError(f);
-        }
-        return (NativeInt32Array)thisObj;
+        return ensureType(thisObj, NativeInt32Array.class, f);
     }
 
     @Override

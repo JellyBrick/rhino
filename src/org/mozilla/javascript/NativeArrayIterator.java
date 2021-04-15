@@ -43,22 +43,22 @@ public final class NativeArrayIterator extends ES6Iterator {
 
     @Override
     protected boolean isDone(Context cx, Scriptable scope) {
-        return index >= NativeArray.getLengthProperty(cx, arrayLike, false);
+        return index >= NativeArray.getLengthProperty(cx, arrayLike);
     }
 
     @Override
     protected Object nextValue(Context cx, Scriptable scope) {
         if (type == ARRAY_ITERATOR_TYPE.KEYS) {
-            return index++;
+            return Integer.valueOf(index++);
         }
 
         Object value = arrayLike.get(index, arrayLike);
-        if (value == ScriptableObject.NOT_FOUND) {
+        if (value == Scriptable.NOT_FOUND) {
             value = Undefined.instance;
         }
 
         if (type == ARRAY_ITERATOR_TYPE.ENTRIES) {
-            value = cx.newArray(scope, new Object[] {index, value});
+            value = cx.newArray(scope, new Object[] {Integer.valueOf(index), value});
         }
 
         index++;

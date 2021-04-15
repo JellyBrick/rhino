@@ -10,9 +10,6 @@ package org.mozilla.javascript;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.mozilla.javascript.jdk15.VMBridge_jdk15;
 import org.mozilla.javascript.jdk18.VMBridge_jdk18;
@@ -67,7 +64,7 @@ public abstract class VMBridge
 
     /**
      * Associate {@link Context} instance with the current thread or remove
-     * the current association if <tt>cx</tt> is null.
+     * the current association if <code>cx</code> is null.
      *
      * @param contextHelper The result of {@link #getThreadContextHelper()}
      *                      called from the current thread.
@@ -106,7 +103,7 @@ public abstract class VMBridge
      * {@link InterfaceAdapter#invoke(ContextFactory, Object, Scriptable,
      *                                Object, Method, Object[])}
      * as implementation of interface methods associated with
-     * <tt>proxyHelper</tt>. {@link Method}
+     * <code>proxyHelper</code>. {@link Method}
      *
      * @param proxyHelper The result of the previous call to
      *        {@link #getInterfaceProxyHelper(ContextFactory, Class[])}.
@@ -116,16 +113,4 @@ public abstract class VMBridge
                                        InterfaceAdapter adapter,
                                        Object target,
                                        Scriptable topScope);
-
-    /**
-     * If "obj" is a java.util.Iterator or a java.lang.Iterable, return a
-     * wrapping as a JavaScript Iterator. Otherwise, return null.
-     * This method is in VMBridge since Iterable is a JDK 1.5 addition.
-     */
-    protected abstract Iterator<?> getJavaIterator(Context cx, Scriptable scope, Object obj);
-
-    /**
-     * Support checking to see if this is the default method for Java 8.
-     */
-    public abstract boolean isDefaultMethod(Method method);
 }

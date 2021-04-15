@@ -252,9 +252,7 @@ final class QName extends IdScriptableObject
 
     private QName realThis(Scriptable thisObj, IdFunctionObject f)
     {
-        if(!(thisObj instanceof QName))
-            throw incompatibleCallError(f);
-        return (QName)thisObj;
+        return ensureType(thisObj, QName.class, f);
     }
 
     QName newQName(XMLLibImpl lib, String q_uri, String q_localName, String q_prefix) {
@@ -355,7 +353,7 @@ final class QName extends IdScriptableObject
             if (!"*".equals(localName)) {
                 sb.append("null, ");
             }
-        } else {
+        } else if (uri != null) {
             Namespace.toSourceImpl(prefix, uri, sb);
             sb.append(", ");
         }

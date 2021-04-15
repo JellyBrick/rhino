@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,8 +27,6 @@ import org.mozilla.javascript.drivers.ShellTest;
 import org.mozilla.javascript.drivers.TestUtils;
 import org.mozilla.javascript.tools.FileProvider;
 import org.mozilla.javascript.tools.shell.ShellContextFactory;
-
-import junit.framework.Assert;
 
 /**
  * This JUnit suite runs the Mozilla test suite (in mozilla.org CVS
@@ -51,19 +50,22 @@ public class MozillaSuiteTest {
     private final File jsFile;
     private final int optimizationLevel;
 
-    static final int[] OPT_LEVELS;
+    private static final int[] OPT_LEVELS;
 
     static {
-        if (Utils.HAS_CODEGEN) {
-            OPT_LEVELS = new int[] {-1, 0, 9};
+        // Reduce the number of tests that we run by a factor of three...
+        String overriddenLevel = System.getProperty("TEST_OPTLEVEL");
+        if (overriddenLevel != null) {
+            OPT_LEVELS = new int[]{Integer.parseInt(overriddenLevel)};
         } else {
-            OPT_LEVELS = new int[] {-1};
+            OPT_LEVELS = new int[]{-1, 0, 9};
         }
     }
 
     public MozillaSuiteTest(File jsFile, int optimizationLevel) {
         this.jsFile = jsFile;
         this.optimizationLevel = optimizationLevel;
+        ShellTest.cacheFramework();
     }
 
     public static File getTestDir() throws IOException {
@@ -73,14 +75,20 @@ public class MozillaSuiteTest {
         } else {
             URL url = JsTestsBase.class.getResource(".");
             String path = url.getFile();
-            int jsIndex = path.lastIndexOf("/js");
-            if (jsIndex == -1) {
-                throw new IllegalStateException("You aren't running the tests "+
-                    "from within the standard mozilla/js directory structure");
+
+            // support running from eclipse
+            if (new File(path + "../../../../../testsrc/tests").exists()) {
+                testDir = new File(path + "../../../../../testsrc/tests").getCanonicalFile();
+            } else {
+                int jsIndex = path.lastIndexOf("/js");
+                if (jsIndex == -1) {
+                    throw new IllegalStateException("You aren't running the tests "+
+                        "from within the standard mozilla/js directory structure");
+                }
+                path = path.substring(0, jsIndex + 3).replace('/', File.separatorChar);
+                path = path.replace("%20", " ");
+                testDir = new File(path, "tests");
             }
-            path = path.substring(0, jsIndex + 3).replace('/', File.separatorChar);
-            path = path.replace("%20", " ");
-            testDir = new File(path, "tests");
         }
         if (!testDir.isDirectory()) {
             throw new FileNotFoundException(testDir + " is not a directory");
@@ -185,8 +193,8 @@ public class MozillaSuiteTest {
         }
 
         @Override
-        public final void timedOut() {
-            failed("Timed out.");
+        public final void timedOut(long timeoutMillis) {
+            failed("Timed out (timeout = " + timeoutMillis + "(");
         }
     }
 
@@ -198,7 +206,7 @@ public class MozillaSuiteTest {
         shellContextFactory.setOptimizationLevel(optimizationLevel);
         ShellTestParameters params = new ShellTestParameters();
         JunitStatus status = new JunitStatus();
-        ShellTest.run(shellContextFactory, jsFile, params, status);
+        ShellTest.runNoFork(shellContextFactory, jsFile, params, status);
     }
 
 
@@ -230,8 +238,7 @@ public class MozillaSuiteTest {
                     try {
                         (new MozillaSuiteTest(testFile, optLevel)).runMozillaTest();
                         // strip off testDir
-                        String canonicalized =
-                            testFile.getAbsolutePath().substring(absolutePathLength);
+                        String canonicalized = testFile.getAbsolutePath().substring(absolutePathLength);
                         canonicalized = canonicalized.replace('\\', '/');
                         skippedPassed.add(canonicalized);
                     } catch (Throwable t) {

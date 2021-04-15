@@ -15,9 +15,7 @@ import org.mozilla.javascript.TopLevel;
  * and check sandbox constraints.
  */
 public class ModuleScope extends TopLevel {
-
     private static final long serialVersionUID = 1L;
-
     private final URI uri;
     private final URI base;
 
@@ -25,7 +23,7 @@ public class ModuleScope extends TopLevel {
         this.uri = uri;
         this.base = base;
         setPrototype(prototype);
-        cacheBuiltins();
+        cacheBuiltins(prototype, false);
     }
 
     public URI getUri() {

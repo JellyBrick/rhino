@@ -169,7 +169,7 @@ public class NativeGlobal implements Serializable, IdFunctionCall
                         result = true;
                     } else {
                         double d = ScriptRuntime.toNumber(args[0]);
-                        result = (d != d);
+                        result = Double.isNaN(d);
                     }
                     return ScriptRuntime.wrapBoolean(result);
                 }
@@ -249,8 +249,11 @@ public class NativeGlobal implements Serializable, IdFunctionCall
                     radix = 16;
                     start += 2;
                 } else if ('0' <= c && c <= '9') {
-                    radix = 8;
-                    start++;
+                    Context cx = Context.getCurrentContext();
+                    if (cx == null || cx.getLanguageVersion() < Context.VERSION_1_5) {
+                        radix = 8;
+                        start++;
+                    }
                 }
             }
         }
@@ -373,7 +376,7 @@ public class NativeGlobal implements Serializable, IdFunctionCall
      * for the strange constant names should be directed there.
      */
 
-    private Object js_escape(Object[] args) {
+    private static Object js_escape(Object[] args) {
         final int
             URL_XALPHAS = 1,
             URL_XPALPHAS = 2,
@@ -384,10 +387,10 @@ public class NativeGlobal implements Serializable, IdFunctionCall
         int mask = URL_XALPHAS | URL_XPALPHAS | URL_PATH;
         if (args.length > 1) { // the 'mask' argument.  Non-ECMA.
             double d = ScriptRuntime.toNumber(args[1]);
-            if (d != d || ((mask = (int) d) != d) ||
+            if (Double.isNaN(d) || ((mask = (int) d) != d) ||
                 0 != (mask & ~(URL_XALPHAS | URL_XPALPHAS | URL_PATH)))
             {
-                throw Context.reportRuntimeError0("msg.bad.esc.mask");
+                throw Context.reportRuntimeErrorById("msg.bad.esc.mask");
             }
         }
 
@@ -440,7 +443,7 @@ public class NativeGlobal implements Serializable, IdFunctionCall
      * The global unescape method, as per ECMA-262 15.1.2.5.
      */
 
-    private Object js_unescape(Object[] args)
+    private static Object js_unescape(Object[] args)
     {
         String s = ScriptRuntime.toString(args, 0);
         int firstEscapePos = s.indexOf('%');
@@ -483,7 +486,7 @@ public class NativeGlobal implements Serializable, IdFunctionCall
      * This is an indirect call to eval, and thus uses the global environment.
      * Direct calls are executed via ScriptRuntime.callSpecial().
      */
-    private Object js_eval(Context cx, Scriptable scope, Object[] args)
+    private static Object js_eval(Context cx, Scriptable scope, Object[] args)
     {
         Scriptable global = ScriptableObject.getTopLevelScope(scope);
         return ScriptRuntime.evalSpecial(cx, global, global, args, "eval code", 1);
@@ -723,7 +726,7 @@ public class NativeGlobal implements Serializable, IdFunctionCall
 
     private static EcmaError uriError() {
         return ScriptRuntime.constructError("URIError",
-                ScriptRuntime.getMessage0("msg.bad.uri"));
+                ScriptRuntime.getMessageById("msg.bad.uri"));
     }
 
     private static final String URI_DECODE_RESERVED = ";/?:@&=+$,#";

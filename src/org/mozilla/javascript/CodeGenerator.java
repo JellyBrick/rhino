@@ -6,9 +6,14 @@
 
 package org.mozilla.javascript;
 
+import org.mozilla.javascript.ast.AstNode;
+import org.mozilla.javascript.ast.AstRoot;
+import org.mozilla.javascript.ast.Block;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Jump;
+import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.ast.ScriptNode;
+import org.mozilla.javascript.ast.VariableInitializer;
 
 /**
  * Generates bytecode for the Interpreter.
@@ -103,6 +108,11 @@ class CodeGenerator extends Icode {
         if (theFunction.isInStrictMode()) {
             itsData.isStrict = true;
         }
+        if (theFunction.isES6Generator()) {
+            itsData.isES6Generator = true;
+        }
+
+        itsData.declaredAsVar = (theFunction.getParent() instanceof VariableInitializer);
 
         generateICodeFromTree(theFunction.getLastChild());
     }
@@ -191,6 +201,13 @@ class CodeGenerator extends Icode {
             gen.itsData = new InterpreterData(itsData);
             gen.generateFunctionICode();
             array[i] = gen.itsData;
+
+            final AstNode fnParent = fn.getParent();
+            if (!(fnParent instanceof AstRoot
+                    || fnParent instanceof Scope
+                    || fnParent instanceof Block)) {
+                        gen.itsData.declaredAsFunctionExpression = true;
+            }
         }
         itsData.itsNestedFunctions = array;
     }
@@ -224,7 +241,7 @@ class CodeGenerator extends Icode {
         }
     }
 
-    private RuntimeException badTree(Node node)
+    private static RuntimeException badTree(Node node)
     {
         throw new RuntimeException(node.toString());
     }
@@ -273,7 +290,7 @@ class CodeGenerator extends Icode {
           case Token.EMPTY:
           case Token.WITH:
             updateLineNumber(node);
-            // fallthru
+            // fall through
           case Token.SCRIPT:
             while (child != null) {
                 visitStatement(child, initialStackDepth);
@@ -458,15 +475,27 @@ class CodeGenerator extends Icode {
           case Token.RETURN:
             updateLineNumber(node);
             if (node.getIntProp(Node.GENERATOR_END_PROP, 0) != 0) {
-                // We're in a generator, so change RETURN to GENERATOR_END
-                addIcode(Icode_GENERATOR_END);
-                addUint16(lineNumber & 0xFFFF);
-            } else if (child != null) {
-                visitExpression(child, ECF_TAIL);
-                addToken(Token.RETURN);
-                stackChange(-1);
+                if ((child == null) ||
+                    (compilerEnv.getLanguageVersion() < Context.VERSION_ES6)) {
+                    // End generator function with no result, or old language version
+                    // in which generators never return a result.
+                    addIcode(Icode_GENERATOR_END);
+                    addUint16(lineNumber & 0xFFFF);
+                } else {
+                    visitExpression(child, ECF_TAIL);
+                    addIcode(Icode_GENERATOR_RETURN);
+                    addUint16(lineNumber & 0xFFFF);
+                    stackChange(-1);
+                }
+
             } else {
-                addIcode(Icode_RETUNDEF);
+                if (child == null) {
+                    addIcode(Icode_RETUNDEF);
+                } else {
+                    visitExpression(child, ECF_TAIL);
+                    addToken(Token.RETURN);
+                    stackChange(-1);
+                }
             }
             break;
 
@@ -665,6 +694,7 @@ class CodeGenerator extends Icode {
           case Token.MOD:
           case Token.DIV:
           case Token.MUL:
+          case Token.EXP:
           case Token.EQ:
           case Token.NE:
           case Token.SHEQ:
@@ -945,13 +975,18 @@ class CodeGenerator extends Icode {
             break;
 
           case Token.YIELD:
+          case Token.YIELD_STAR:
             if (child != null) {
                 visitExpression(child, 0);
             } else {
                 addIcode(Icode_UNDEF);
                 stackChange(1);
             }
-            addToken(Token.YIELD);
+            if (type == Token.YIELD) {
+                addToken(Token.YIELD);
+            } else {
+                addIcode(Icode_YIELD_STAR);
+            }
             addUint16(node.getLineno() & 0xFFFF);
             break;
 
@@ -1129,7 +1164,7 @@ class CodeGenerator extends Icode {
         visitExpression(expr, 0);
     }
 
-    private int getLocalBlockRef(Node node)
+    private static int getLocalBlockRef(Node node)
     {
         Node localBlock = (Node)node.getProp(Node.LOCAL_BLOCK_PROP);
         return localBlock.getExistingIntProp(Node.LOCAL_PROP);

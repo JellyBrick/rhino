@@ -54,7 +54,7 @@ public interface Scriptable {
      * Depending on the property selector, the runtime will call
      * this method or the form of <code>get</code> that takes an
      * integer:
-     * <table summary='mapping js code to java code'>
+     * <table>
      * <tr><th>JavaScript code</th><th>Java code</th></tr>
      * <tr><td>a.b      </td><td>a.get("b", a)</td></tr>
      * <tr><td>a["foo"] </td><td>a.get("foo", a)</td></tr>
@@ -176,21 +176,6 @@ public interface Scriptable {
      * @see org.mozilla.javascript.Context#toObject(Object, Scriptable)
      */
     public void put(String name, Scriptable start, Object value);
-
-    /**
-     * Sets an property named by an symbol in this object.
-     * <p>
-     * The property is specified by an symbol
-     * as defined for <code>get</code>.<p>
-     *
-     * Identical to <code>put(String, Scriptable, Object)</code> except that
-     * an symbol is used to select the property.
-     *
-     * @param symbol the symbol for the property
-     * @param start the object whose property is being set
-     * @param value value to set the property to
-     */
-    public void put(Symbol symbol, Scriptable start, Object value);
 
     /**
      * Sets an indexed property in this object.

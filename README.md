@@ -18,6 +18,10 @@ Rhino is licensed under the [MPL 2.0](./LICENSE.txt).
 <tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_7_2_Release">Rhino 1.7.7.2</a></td><td>August 24, 2017</td></tr>
 <tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_8_Release">Rhino 1.7.8</a></td><td>January 22, 2018</td></tr>
 <tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_9_Release">Rhino 1.7.9</a></td><td>March 15, 2018</td></tr>
+<tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_10_Release">Rhino 1.7.10</a></td><td>April 9, 2018</td></tr>
+<tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_11_Release">Rhino 1.7.11</a></td><td>May 30, 2019</td></tr>
+<tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_12_Release">Rhino 1.7.12</a></td><td>January 13, 2020</td></tr>
+<tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_13_Release">Rhino 1.7.13</a></td><td>September 2, 2020</td></tr>
 </table>
 
 [Release Notes](./RELEASE-NOTES.md) for recent releases.
@@ -25,11 +29,14 @@ Rhino is licensed under the [MPL 2.0](./LICENSE.txt).
 [Compatibility table](http://mozilla.github.io/rhino/compat/engines.html) which shows which advanced JavaScript
 features from ES6, and ES2016+ are implemented in Rhino.
 
+[![Mozilla](https://circleci.com/gh/mozilla/rhino.svg?style=shield)](https://app.circleci.com/pipelines/github/mozilla/rhino)
+
+
 ## Documentation
 
 Information for script builders and embedders:
 
-[https://developer.mozilla.org/en-US/docs/Rhino_documentation](https://developer.mozilla.org/en-US/docs/Rhino_documentation)
+[https://developer.mozilla.org/en-US/docs/Rhino_documentation](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino/Documentation)
 
 JavaDoc for all the APIs:
 
@@ -54,6 +61,14 @@ git submodule update
 ./gradlew test
 ```
 Build and run all the tests.
+```
+./gradlew test -Dquick
+```
+The tests in Test262Suite and MozillaSuiteTest are run 3 times by default (at differing optimization levels).
+The `quick` parameter can be used to only run them once.
+
+It is also possible to limit the Test262Suite to 1 run by setting the environment variable 
+TEST_262_OPTLEVEL to for example -1.
 ```
 ./gradlew testBenchmark
 ```
@@ -82,12 +97,14 @@ mavenReleaseRepo=
 
 Rhino can run as a stand-alone interpreter from the command line:
 ```
-java -jar buildGradle/libs/rhino-1.7.9.jar
+java -jar buildGradle/libs/rhino-1.7.12.jar -debug -version 200
 Rhino 1.7.9 2018 03 15
 js> print('Hello, World!');
 Hello, World!
 js>
 ```
+There is also a "rhino" package for many Linux distributions as well as Homebrew for the Mac.
+
 You can also embed it, as most people do. See below for more docs.
 
 ## Issues

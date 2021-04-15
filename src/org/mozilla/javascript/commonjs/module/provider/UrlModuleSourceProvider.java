@@ -31,14 +31,11 @@ import java.util.List;
  * @author Attila Szegedi
  * @version $Id: UrlModuleSourceProvider.java,v 1.4 2011/04/07 20:26:12 hannes%helma.at Exp $
  */
-public class UrlModuleSourceProvider extends ModuleSourceProviderBase
-{
+public class UrlModuleSourceProvider extends ModuleSourceProviderBase {
     private static final long serialVersionUID = 1L;
-
     private final Iterable<URI> privilegedUris;
     private final Iterable<URI> fallbackUris;
-    private final UrlConnectionSecurityDomainProvider
-        urlConnectionSecurityDomainProvider;
+    private final UrlConnectionSecurityDomainProvider urlConnectionSecurityDomainProvider;
     private final UrlConnectionExpiryCalculator urlConnectionExpiryCalculator;
 
     /**
@@ -241,22 +238,18 @@ public class UrlModuleSourceProvider extends ModuleSourceProviderBase
     }
 
     private static class URLValidator implements Serializable {
-        private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    private final URI uri;
+    private final long lastModified;
+    private final String entityTags;
+    private long expiry;
 
-        private final URI uri;
-        private final long lastModified;
-        private final String entityTags;
-        private long expiry;
-
-        public URLValidator(URI uri, URLConnection urlConnection,
-                long request_time, UrlConnectionExpiryCalculator
-                urlConnectionExpiryCalculator) {
-            this.uri = uri;
-            this.lastModified = urlConnection.getLastModified();
-            this.entityTags = getEntityTags(urlConnection);
-            expiry = calculateExpiry(urlConnection, request_time,
-                    urlConnectionExpiryCalculator);
-        }
+    public URLValidator(URI uri, URLConnection urlConnection, long request_time, UrlConnectionExpiryCalculator urlConnectionExpiryCalculator) {
+        this.uri = uri;
+        this.lastModified = urlConnection.getLastModified();
+        this.entityTags = getEntityTags(urlConnection);
+        expiry = calculateExpiry(urlConnection, request_time, urlConnectionExpiryCalculator);
+    }
 
         boolean updateValidator(URLConnection urlConnection, long request_time,
                 UrlConnectionExpiryCalculator urlConnectionExpiryCalculator)
@@ -279,7 +272,7 @@ public class UrlModuleSourceProvider extends ModuleSourceProviderBase
             return lastModified != urlConnection.getLastModified();
         }
 
-        private long calculateExpiry(URLConnection urlConnection,
+        private static long calculateExpiry(URLConnection urlConnection,
                 long request_time, UrlConnectionExpiryCalculator
                 urlConnectionExpiryCalculator)
         {
@@ -316,7 +309,7 @@ public class UrlModuleSourceProvider extends ModuleSourceProviderBase
                 urlConnectionExpiryCalculator.calculateExpiry(urlConnection);
         }
 
-        private int getMaxAge(String cacheControl) {
+        private static int getMaxAge(String cacheControl) {
             final int maxAgeIndex = cacheControl.indexOf("max-age");
             if(maxAgeIndex == -1) {
                 return -1;
@@ -341,7 +334,7 @@ public class UrlModuleSourceProvider extends ModuleSourceProviderBase
             }
         }
 
-        private String getEntityTags(URLConnection urlConnection) {
+        private static String getEntityTags(URLConnection urlConnection) {
             final List<String> etags = urlConnection.getHeaderFields().get("ETag");
             if(etags == null || etags.isEmpty()) {
                 return null;

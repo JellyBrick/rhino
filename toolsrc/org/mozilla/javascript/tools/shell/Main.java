@@ -11,12 +11,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -91,6 +91,7 @@ public class Main
             this.type = type;
         }
 
+        @Override
         public Object run(Context cx)
         {
             if (useRequire) {
@@ -106,6 +107,7 @@ public class Main
             return null;
         }
 
+        @Override
         public void quit(Context cx, int exitCode)
         {
             if (type == SYSTEM_EXIT) {
@@ -247,9 +249,8 @@ public class Main
                 }
             }
             return new ModuleScope(global, uri, null);
-        } else {
-            return global;
         }
+        return global;
     }
 
     /**
@@ -416,8 +417,7 @@ public class Main
     {
         Throwable exObj;
         try {
-            Class<?> cl = Class.forName
-                ("org.mozilla.javascript.tools.shell.JavaPolicySecurity");
+            Class<?> cl = Class.forName("org.mozilla.javascript.tools.shell.JavaPolicySecurity");
             securityImpl = (SecurityProxy)cl.newInstance();
             SecurityController.initGlobal(securityImpl);
             return;
@@ -430,8 +430,7 @@ public class Main
         } catch (LinkageError ex) {
             exObj = ex;
         }
-        throw Kit.initCause(new IllegalStateException(
-            "Can not load security support: "+exObj), exObj);
+        throw new IllegalStateException("Can not load security support: " + exObj, exObj);
     }
 
     /**
@@ -469,7 +468,7 @@ public class Main
                 if (filename == null)
                     prompt = prompts[0];
                 console.flush();
-                String source = "";
+                StringBuilder source = new StringBuilder();
 
                 // Collect lines of source to compile.
                 while (true) {
@@ -485,20 +484,21 @@ public class Main
                         hitEOF = true;
                         break;
                     }
-                    source = source + newline + "\n";
+                    source.append(newline).append('\n');
                     lineno++;
-                    if (cx.stringIsCompilableUnit(source))
+                    if (cx.stringIsCompilableUnit(source.toString()))
                         break;
                     prompt = prompts[1];
                 }
                 try {
-                    Script script = cx.compileString(source, "<stdin>", lineno, null);
+                    String finalSource = source.toString();
+                    Script script = cx.compileString(finalSource, "<stdin>", lineno, null);
                     if (script != null) {
                         Object result = script.exec(cx, scope);
                         // Avoid printing out undefined or function definitions.
                         if (result != Context.getUndefinedValue() &&
                                 !(result instanceof Function &&
-                                        source.trim().startsWith("function")))
+                                        finalSource.trim().startsWith("function")))
                         {
                             try {
                                 console.println(Context.toString(result));
@@ -607,11 +607,7 @@ public class Main
 
         if (source != null) {
             if (source instanceof String) {
-                try {
-                    bytes = ((String)source).getBytes("UTF-8");
-                } catch (UnsupportedEncodingException ue) {
-                    bytes = ((String)source).getBytes();
-                }
+                bytes = ((String)source).getBytes(StandardCharsets.UTF_8);
             } else {
                 bytes = (byte[])source;
             }
@@ -691,9 +687,9 @@ public class Main
     }
 
     /**
-     * Read file or url specified by <tt>path</tt>.
-     * @return file or url content as <tt>byte[]</tt> or as <tt>String</tt> if
-     * <tt>convertToString</tt> is true.
+     * Read file or url specified by <code>path</code>.
+     * @return file or url content as <code>byte[]</code> or as <code>String</code> if
+     * <code>convertToString</code> is true.
      */
     private static Object readFileOrUrl(String path, boolean convertToString)
             throws IOException
@@ -715,6 +711,7 @@ public class Main
     }
 
     static class ScriptCache extends LinkedHashMap<String, ScriptReference> {
+        private static final long serialVersionUID = -6866856136258508615L;
         ReferenceQueue<Script> queue;
         int capacity;
 

@@ -114,15 +114,15 @@ public class NativeJavaMethod extends BaseFunction
         StringBuilder sb = new StringBuilder();
         for (int i = 0, N = methods.length; i != N; ++i) {
             // Check member type, we also use this for overloaded constructors
-            MemberBox member = methods[i];
-            if (member.isMethod()) {
-                sb.append(JavaMembers.javaSignature(member.getReturnType()));
+            if (methods[i].isMethod()) {
+                Method method = methods[i].method();
+                sb.append(JavaMembers.javaSignature(method.getReturnType()));
                 sb.append(' ');
-                sb.append(member.getName());
+                sb.append(method.getName());
             } else {
-                sb.append(member.getName());
+                sb.append(methods[i].getName());
             }
-            sb.append(JavaMembers.liveConnectSignature(member.getParameterTypes()));
+            sb.append(JavaMembers.liveConnectSignature(methods[i].argTypes));
             sb.append('\n');
         }
         return sb.toString();
@@ -142,13 +142,13 @@ public class NativeJavaMethod extends BaseFunction
             Class<?> c = CompatExecutables.getDeclaringClass(methods[0].member());
             String sig = c.getName() + '.' + getFunctionName() + '(' +
                          scriptSignature(args) + ')';
-            throw Context.reportRuntimeError1("msg.java.no_such_method", sig);
+            throw Context.reportRuntimeErrorById("msg.java.no_such_method", sig);
         }
 
         MemberBox meth = methods[index];
-        Class<?>[] argTypes = meth.getParameterTypes();
+        Class<?>[] argTypes = meth.argTypes;
 
-        if (meth.isVarArgs()) {
+        if (meth.vararg) {
             // marshall the explicit parameters
             Object[] newArgs = new Object[argTypes.length];
             for (int i = 0; i < argTypes.length-1; i++) {
@@ -206,7 +206,7 @@ public class NativeJavaMethod extends BaseFunction
             Class<?> c = meth.getDeclaringClass();
             for (;;) {
                 if (o == null) {
-                    throw Context.reportRuntimeError3(
+                    throw Context.reportRuntimeErrorById(
                         "msg.nonjava.method", getFunctionName(),
                         ScriptRuntime.toString(thisObj), c.getName());
                 }
@@ -224,7 +224,7 @@ public class NativeJavaMethod extends BaseFunction
         }
 
         Object retval = meth.invoke(javaObject, args);
-        Class<?> staticType = meth.getReturnType();
+        Class<?> staticType = meth.method().getReturnType();
 
         if (debug) {
             Class<?> actualType = (retval == null) ? null
@@ -251,25 +251,17 @@ public class NativeJavaMethod extends BaseFunction
 
     int findCachedFunction(Context cx, Object[] args) {
         if (methods.length > 1) {
-            if (overloadCache != null) {
-                for (ResolvedOverload ovl : overloadCache) {
-                    if (ovl.matches(args)) {
-                        return ovl.index;
-                    }
+            for (ResolvedOverload ovl : overloadCache) {
+                if (ovl.matches(args)) {
+                    return ovl.index;
                 }
-            } else {
-                overloadCache = new CopyOnWriteArrayList<ResolvedOverload>();
             }
             int index = findFunction(cx, methods, args);
             // As a sanity measure, don't let the lookup cache grow longer
             // than twice the number of overloaded methods
             if (overloadCache.size() < methods.length * 2) {
-                synchronized (overloadCache) {
-                    ResolvedOverload ovl = new ResolvedOverload(args, index);
-                    if (!overloadCache.contains(ovl)) {
-                        overloadCache.add(0, ovl);
-                    }
-                }
+                ResolvedOverload ovl = new ResolvedOverload(args, index);
+                overloadCache.addIfAbsent(ovl);
             }
             return index;
         }
@@ -288,10 +280,10 @@ public class NativeJavaMethod extends BaseFunction
             return -1;
         } else if (methodsOrCtors.length == 1) {
             MemberBox member = methodsOrCtors[0];
-            Class<?>[] argTypes = member.getParameterTypes();
+            Class<?>[] argTypes = member.argTypes;
             int alength = argTypes.length;
 
-            if (member.isVarArgs()) {
+            if (member.vararg) {
                 alength--;
                 if ( alength > args.length) {
                     return -1;
@@ -319,9 +311,9 @@ public class NativeJavaMethod extends BaseFunction
       search:
         for (int i = 0; i < methodsOrCtors.length; i++) {
             MemberBox member = methodsOrCtors[i];
-            Class<?>[] argTypes = member.getParameterTypes();
+            Class<?>[] argTypes = member.argTypes;
             int alength = argTypes.length;
-            if (member.isVarArgs()) {
+            if (member.vararg) {
                 alength--;
                 if ( alength > args.length) {
                     continue search;
@@ -364,15 +356,15 @@ public class NativeJavaMethod extends BaseFunction
                         // When FEATURE_ENHANCED_JAVA_ACCESS gives us access
                         // to non-public members, continue to prefer public
                         // methods in overloading
-                        if (bestFit.isPublic())
+                        if (!bestFit.isPublic())
                             ++betterCount;
                         else
                             ++worseCount;
                     } else {
                         int preference = preferSignature(args, argTypes,
-                                                         member.isVarArgs(),
-                                                         bestFit.getParameterTypes(),
-                                                         bestFit.isVarArgs() );
+                                                         member.vararg,
+                                                         bestFit.argTypes,
+                                                         bestFit.vararg );
                         if (preference == PREFERENCE_AMBIGUOUS) {
                             break;
                         } else if (preference == PREFERENCE_FIRST_ARG) {
@@ -461,11 +453,11 @@ public class NativeJavaMethod extends BaseFunction
         String memberClass = firstFitMember.getDeclaringClass().getName();
 
         if (methodsOrCtors[0].isCtor()) {
-            throw Context.reportRuntimeError3(
+            throw Context.reportRuntimeErrorById(
                 "msg.constructor.ambiguous",
                 memberName, scriptSignature(args), buf.toString());
         }
-        throw Context.reportRuntimeError4(
+        throw Context.reportRuntimeErrorById(
             "msg.method.ambiguous", memberClass,
             memberName, scriptSignature(args), buf.toString());
     }
@@ -546,7 +538,7 @@ public class NativeJavaMethod extends BaseFunction
             if (member.isMethod()) {
                 sb.append(member.getName());
             }
-            sb.append(JavaMembers.liveConnectSignature(member.getParameterTypes()));
+            sb.append(JavaMembers.liveConnectSignature(member.argTypes));
             sb.append(" for arguments (");
             sb.append(scriptSignature(args));
             sb.append(')');
@@ -556,7 +548,7 @@ public class NativeJavaMethod extends BaseFunction
 
     MemberBox[] methods;
     private String functionName;
-    private transient CopyOnWriteArrayList<ResolvedOverload> overloadCache;
+    private transient final CopyOnWriteArrayList<ResolvedOverload> overloadCache = new CopyOnWriteArrayList<>();
 }
 
 class ResolvedOverload {

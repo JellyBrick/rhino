@@ -10,9 +10,8 @@ import java.util.Iterator;
 
 import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
-public class NativeSet
-    extends IdScriptableObject
-{
+public class NativeSet extends IdScriptableObject {
+    private static final long serialVersionUID = -8442212766987072986L;
     private static final Object SET_TAG = "Set";
     static final String ITERATOR_TAG = "Set Iterator";
 
@@ -28,8 +27,8 @@ public class NativeSet
         obj.exportAsJSClass(MAX_PROTOTYPE_ID, scope, false);
 
         ScriptableObject desc = (ScriptableObject)cx.newObject(scope);
-        desc.put("enumerable", desc, false);
-        desc.put("configurable", desc, true);
+        desc.put("enumerable", desc, Boolean.FALSE);
+        desc.put("configurable", desc, Boolean.TRUE);
         desc.put("get", desc, obj.get(GETSIZE, obj));
         obj.defineOwnProperty(cx, "size", desc);
 
@@ -61,7 +60,7 @@ public class NativeSet
                     }
                     return ns;
                 } else {
-                    throw ScriptRuntime.typeError1("msg.no.new", "Set");
+                    throw ScriptRuntime.typeErrorById("msg.no.new", "Set");
                 }
             case Id_add:
                 return realThis(thisObj, f).js_add(args.length > 0 ? args[0] : Undefined.instance);
@@ -91,7 +90,7 @@ public class NativeSet
         Object key = k;
         if ((key instanceof Number) &&
             ((Number)key).doubleValue() == ScriptRuntime.negativeZero) {
-            key = 0.0;
+            key = ScriptRuntime.zeroObj;
         }
         entries.put(key, key);
         return this;
@@ -100,12 +99,12 @@ public class NativeSet
     private Object js_delete(Object arg)
     {
         final Object ov = entries.delete(arg);
-        return (ov != null);
+        return Boolean.valueOf(ov != null);
     }
 
     private Object js_has(Object arg)
     {
-        return entries.has(arg);
+        return Boolean.valueOf(entries.has(arg));
     }
 
     private Object js_clear()
@@ -116,7 +115,7 @@ public class NativeSet
 
     private Object js_getSize()
     {
-        return entries.size();
+        return Integer.valueOf(entries.size());
     }
 
     private Object js_iterator(Scriptable scope, NativeCollectionIterator.Type type)
@@ -186,21 +185,15 @@ public class NativeSet
         }
     }
 
-    private NativeSet realThis(Scriptable thisObj, IdFunctionObject f)
+    private static NativeSet realThis(Scriptable thisObj, IdFunctionObject f)
     {
-        if (thisObj == null) {
-            throw incompatibleCallError(f);
+        final NativeSet ns = ensureType(thisObj, NativeSet.class, f);
+        if (!ns.instanceOfSet) {
+            // If we get here, then this object doesn't have the "Set internal data slot."
+            throw ScriptRuntime.typeErrorById("msg.incompat.call", f.getFunctionName());
         }
-        try {
-            final NativeSet ns = (NativeSet)thisObj;
-            if (!ns.instanceOfSet) {
-                // If we get here, then this object doesn't have the "Set internal data slot."
-                throw incompatibleCallError(f);
-            }
-            return ns;
-        } catch (ClassCastException cce) {
-            throw incompatibleCallError(f);
-        }
+
+        return ns;
     }
 
     @Override
@@ -254,27 +247,38 @@ public class NativeSet
     protected int findPrototypeId(String s)
     {
         int id;
-// #generated# Last update: 2018-03-22 00:54:31 MDT
-        L0: { id = 0; String X = null; int c;
-            L: switch (s.length()) {
-            case 3: c=s.charAt(0);
-                if (c=='a') { if (s.charAt(2)=='d' && s.charAt(1)=='d') {id=Id_add; break L0;} }
-                else if (c=='h') { if (s.charAt(2)=='s' && s.charAt(1)=='a') {id=Id_has; break L0;} }
-                break L;
-            case 4: X="keys";id=Id_keys; break L;
-            case 5: X="clear";id=Id_clear; break L;
-            case 6: c=s.charAt(0);
-                if (c=='d') { X="delete";id=Id_delete; }
-                else if (c=='v') { X="values";id=Id_values; }
-                break L;
-            case 7: c=s.charAt(0);
-                if (c=='e') { X="entries";id=Id_entries; }
-                else if (c=='f') { X="forEach";id=Id_forEach; }
-                break L;
-            case 11: X="constructor";id=Id_constructor; break L;
-            }
-            if (X!=null && X!=s && !X.equals(s)) id = 0;
-            break L0;
+// #generated# Last update: 2021-03-21 09:49:20 MEZ
+        switch (s) {
+        case "constructor":
+            id = Id_constructor;
+            break;
+        case "add":
+            id = Id_add;
+            break;
+        case "delete":
+            id = Id_delete;
+            break;
+        case "has":
+            id = Id_has;
+            break;
+        case "clear":
+            id = Id_clear;
+            break;
+        case "keys":
+            id = Id_keys;
+            break;
+        case "values":
+            id = Id_values;
+            break;
+        case "entries":
+            id = Id_entries;
+            break;
+        case "forEach":
+            id = Id_forEach;
+            break;
+        default:
+            id = 0;
+            break;
         }
 // #/generated#
         return id;

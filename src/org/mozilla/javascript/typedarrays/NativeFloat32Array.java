@@ -36,7 +36,7 @@ public class NativeFloat32Array
 
     public NativeFloat32Array(int len)
     {
-        this(new NativeArrayBuffer(len * BYTES_PER_ELEMENT), 0, len);
+        this(new NativeArrayBuffer((double)len * BYTES_PER_ELEMENT), 0, len);
     }
 
     @Override
@@ -66,10 +66,7 @@ public class NativeFloat32Array
     @Override
     protected NativeFloat32Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
-        if (!(thisObj instanceof NativeFloat32Array)) {
-            throw incompatibleCallError(f);
-        }
-        return (NativeFloat32Array)thisObj;
+        return ensureType(thisObj, NativeFloat32Array.class, f);
     }
 
     @Override

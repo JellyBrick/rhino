@@ -17,7 +17,9 @@ import java.lang.reflect.Array;
  * @see NativeJavaPackage
  */
 
-public class NativeJavaArray extends NativeJavaObject
+public class NativeJavaArray
+    extends NativeJavaObject
+    implements SymbolScriptable
 {
     private static final long serialVersionUID = -924022554283675333L;
 
@@ -57,6 +59,11 @@ public class NativeJavaArray extends NativeJavaObject
     }
 
     @Override
+    public boolean has(Symbol key, Scriptable start) {
+        return SymbolKey.IS_CONCAT_SPREADABLE.equals(key);
+    }
+
+    @Override
     public Object get(String id, Scriptable start) {
         if (id.equals("length"))
             return Integer.valueOf(length);
@@ -64,7 +71,7 @@ public class NativeJavaArray extends NativeJavaObject
         if (result == NOT_FOUND &&
             !ScriptableObject.hasProperty(getPrototype(), id))
         {
-            throw Context.reportRuntimeError2(
+            throw Context.reportRuntimeErrorById(
                 "msg.java.member.not.found", array.getClass().getName(), id);
         }
         return result;
@@ -81,10 +88,18 @@ public class NativeJavaArray extends NativeJavaObject
     }
 
     @Override
+    public Object get(Symbol key, Scriptable start) {
+        if (SymbolKey.IS_CONCAT_SPREADABLE.equals(key)) {
+            return Boolean.TRUE;
+        }
+        return Scriptable.NOT_FOUND;
+    }
+
+    @Override
     public void put(String id, Scriptable start, Object value) {
         // Ignore assignments to "length"--it's readonly.
         if (!id.equals("length"))
-            throw Context.reportRuntimeError1(
+            throw Context.reportRuntimeErrorById(
                 "msg.java.array.member.not.found", id);
     }
 
@@ -94,10 +109,15 @@ public class NativeJavaArray extends NativeJavaObject
             Array.set(array, index, Context.jsToJava(value, cls));
         }
         else {
-            throw Context.reportRuntimeError2(
+            throw Context.reportRuntimeErrorById(
                 "msg.java.array.index.out.of.bounds", String.valueOf(index),
                 String.valueOf(length - 1));
         }
+    }
+
+    @Override
+    public void delete(Symbol key) {
+        // All symbols are read-only
     }
 
     @Override

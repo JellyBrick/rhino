@@ -14,6 +14,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -27,9 +28,14 @@ import java.util.Map;
  * @see NativeJavaClass
  */
 
-public class NativeJavaObject implements Scriptable, Wrapper, Serializable
+public class NativeJavaObject
+    implements Scriptable, SymbolScriptable, Wrapper, Serializable
 {
     private static final long serialVersionUID = -6948590651130498591L;
+
+    static void init(ScriptableObject scope, boolean sealed) {
+        JavaIterableIterator.init(scope, sealed);
+    }
 
     public NativeJavaObject() { }
 
@@ -73,6 +79,14 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
     }
 
     @Override
+    public boolean has(Symbol key, Scriptable start) {
+        if (SymbolKey.ITERATOR.equals(key) && javaObject instanceof Iterable) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public Object get(String name, Scriptable start) {
         if (fieldAndMethods != null) {
             Object result = fieldAndMethods.get(name);
@@ -83,6 +97,15 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         // TODO: passing 'this' as the scope is bogus since it has
         //  no parent scope
         return members.get(this, name, javaObject, false);
+    }
+
+    @Override
+    public Object get(Symbol key, Scriptable start) {
+        if (SymbolKey.ITERATOR.equals(key) && javaObject instanceof Iterable) {
+            return symbol_iterator;
+        }
+        // Native Java objects have no Symbol members
+        return Scriptable.NOT_FOUND;
     }
 
     @Override
@@ -107,10 +130,11 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         // prototype. Since we can't add a property to a Java object,
         // we modify it in the prototype rather than copy it down.
         String name = symbol.toString();
-        if (prototype == null || members.has(name, false))
+        if (prototype == null || members.has(name, false)) {
             members.put(this, name, javaObject, value, false);
-        else
-            prototype.put(symbol, prototype, value);
+        } else if (prototype instanceof SymbolScriptable) {
+            ((SymbolScriptable)prototype).put(symbol, prototype, value);
+        }
     }
 
     @Override
@@ -126,6 +150,10 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
 
     @Override
     public void delete(String name) {
+    }
+
+    @Override
+    public void delete(Symbol key) {
     }
 
     @Override
@@ -200,6 +228,9 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             if (javaObject instanceof Boolean) {
                 hint = ScriptRuntime.BooleanClass;
             }
+            if (javaObject instanceof Number) {
+                hint = ScriptRuntime.NumberClass;
+            }
         }
         if (hint == null || hint == ScriptRuntime.StringClass) {
             value = javaObject.toString();
@@ -210,7 +241,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             } else if (hint == ScriptRuntime.NumberClass) {
                 converterName = "doubleValue";
             } else {
-                throw Context.reportRuntimeError0("msg.default.value");
+                throw Context.reportRuntimeErrorById("msg.default.value");
             }
             Object converterObject = get(converterName, this);
             if (converterObject instanceof Function) {
@@ -222,7 +253,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
                     && javaObject instanceof Boolean)
                 {
                     boolean b = ((Boolean)javaObject).booleanValue();
-                    value = ScriptRuntime.wrapNumber(b ? 1.0 : 0.0);
+                    value = b ? ScriptRuntime.wrapNumber(1.0) : ScriptRuntime.zeroObj;
                 } else {
                     value = javaObject.toString();
                 }
@@ -547,7 +578,8 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             }
             else if (type == ScriptRuntime.ObjectClass) {
                 Context context = Context.getCurrentContext();
-                if(context.hasFeature(Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE)) {
+                if ((context != null) &&
+                    context.hasFeature(Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE)) {
                     //to process numbers like 2.0 as 2 without decimal place
                     long roundedValue = Math.round(toDouble(value));
                     if(roundedValue == toDouble(value)) {
@@ -673,8 +705,9 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
                     return value;
                 reportConversionError(value, type);
             }
-            else if (type.isInterface() && (value instanceof NativeObject
-                    || value instanceof NativeFunction)) {
+            else if (type.isInterface()
+                     && (value instanceof NativeObject
+                         || (value instanceof Callable && value instanceof ScriptableObject))) {
                 // Try to use function/object as implementation of Java interface.
                 return createInterfaceAdapter(type, (ScriptableObject) value);
             } else {
@@ -726,7 +759,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             type == ScriptRuntime.DoubleClass || type == Double.TYPE) {
             return valueClass == ScriptRuntime.DoubleClass
                 ? value
-                : new Double(toDouble(value));
+                : Double.valueOf(toDouble(value));
         }
 
         if (type == ScriptRuntime.FloatClass || type == Float.TYPE) {
@@ -736,20 +769,20 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             double number = toDouble(value);
             if (Double.isInfinite(number) || Double.isNaN(number)
                 || number == 0.0) {
-                return new Float((float)number);
+                return Float.valueOf((float)number);
             }
 
             double absNumber = Math.abs(number);
             if (absNumber < Float.MIN_VALUE) {
-                return new Float((number > 0.0) ? +0.0 : -0.0);
+                return Float.valueOf((number > 0.0) ? +0.0f : -0.0f);
             }
             else if (absNumber > Float.MAX_VALUE) {
-                return new Float((number > 0.0) ?
+                return Float.valueOf((number > 0.0) ?
                                  Float.POSITIVE_INFINITY :
                                  Float.NEGATIVE_INFINITY);
             }
             else {
-                return new Float((float)number);
+                return Float.valueOf((float)number);
             }
         }
 
@@ -803,7 +836,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
                                             Byte.MAX_VALUE));
         }
 
-        return new Double(toDouble(value));
+        return Double.valueOf(toDouble(value));
     }
 
 
@@ -878,7 +911,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
     {
         // It uses String.valueOf(value), not value.toString() since
         // value can be null, bug 282447.
-        throw Context.reportRuntimeError2(
+        throw Context.reportRuntimeErrorById(
             "msg.conversion.not.allowed",
             String.valueOf(value),
             JavaMembers.javaSignature(type));
@@ -905,7 +938,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         }
 
         if (staticType != null) {
-            out.writeObject(staticType.getClass().getName());
+            out.writeObject(staticType.getName());
         } else {
             out.writeObject(null);
         }
@@ -938,6 +971,63 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         }
 
         initMembers();
+    }
+
+    private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
+        if (!(thisObj instanceof NativeJavaObject)) {
+            throw ScriptRuntime.typeErrorById("msg.incompat.call", SymbolKey.ITERATOR);
+        }
+        Object javaObject = ((NativeJavaObject)thisObj).javaObject;
+        if (!(javaObject instanceof Iterable)) {
+            throw ScriptRuntime.typeErrorById("msg.incompat.call", SymbolKey.ITERATOR);
+        }
+        return new JavaIterableIterator(scope, (Iterable)javaObject);
+    };
+
+    private static final class JavaIterableIterator extends ES6Iterator {
+        private static final long serialVersionUID = 1L;
+        private static final String ITERATOR_TAG = "JavaIterableIterator";
+
+        static void init(ScriptableObject scope, boolean sealed) {
+            ES6Iterator.init(scope, sealed, new JavaIterableIterator(), ITERATOR_TAG);
+        }
+
+        /**
+         * Only for constructing the prototype object.
+         */
+        private JavaIterableIterator() {
+            super();
+        }
+
+        JavaIterableIterator(Scriptable scope, Iterable iterable) {
+            super(scope, ITERATOR_TAG);
+            this.iterator = iterable.iterator();
+        }
+
+        @Override
+        public String getClassName() {
+            return "Java Iterable Iterator";
+        }
+
+        @Override
+        protected boolean isDone(Context cx, Scriptable scope) {
+            return !iterator.hasNext();
+        }
+
+        @Override
+        protected Object nextValue(Context cx, Scriptable scope) {
+            if (!iterator.hasNext()) {
+                return Undefined.instance;
+            }
+            return iterator.next();
+        }
+
+        @Override
+        protected String getTag() {
+            return ITERATOR_TAG;
+        }
+
+        private Iterator iterator;
     }
 
     /**

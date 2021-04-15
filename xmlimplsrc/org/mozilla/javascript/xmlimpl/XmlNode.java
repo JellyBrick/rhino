@@ -21,12 +21,14 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.UserDataHandler;
 
 class XmlNode implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private static final String XML_NAMESPACES_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
-
+    
     private static final String USER_DATA_XMLNODE_KEY = XmlNode.class.getName();
-
+    
     private static final boolean DOM_LEVEL_3 = true;
-
+    
     private static XmlNode getUserData(Node node) {
         if (DOM_LEVEL_3) {
             return (XmlNode)node.getUserData(USER_DATA_XMLNODE_KEY);
@@ -94,8 +96,6 @@ class XmlNode implements Serializable {
     private static XmlNode copy(XmlNode other) {
         return createImpl( other.dom.cloneNode(true) );
     }
-
-    private static final long serialVersionUID = 1L;
 
     private UserDataHandler events = new XmlNodeUserDataHandler();
 
@@ -342,9 +342,8 @@ class XmlNode implements Serializable {
 
         Namespace[] getNamespaces() {
             ArrayList<Namespace> rv = new ArrayList<Namespace>();
-            for (String prefix: map.keySet()) {
-                String uri = map.get(prefix);
-                Namespace n = Namespace.create(prefix, uri);
+            for (Map.Entry<String, String> e : map.entrySet()) {
+                Namespace n = Namespace.create(e.getKey(), e.getValue());
                 if (!n.isEmpty()) {
                     rv.add(n);
                 }
@@ -540,10 +539,7 @@ class XmlNode implements Serializable {
     }
 
     void replaceWith(XmlNode other) {
-        Node replacement = other.dom;
-        if (replacement.getOwnerDocument() != this.dom.getOwnerDocument()) {
-            replacement = this.dom.getOwnerDocument().importNode(replacement, true);
-        }
+        Node replacement = this.dom.getOwnerDocument().importNode(other.dom, true);
         this.dom.getParentNode().replaceChild(replacement, this.dom);
     }
 
@@ -745,13 +741,7 @@ class XmlNode implements Serializable {
                 if (node != null) {
                     lookupPrefix(node);
                 } else {
-                    if (namespace.getUri().equals("")) {
-                        namespace.setPrefix("");
-                    } else {
-                        //    TODO    I am not sure this is right, but if we are creating a standalone node, I think we can set the
-                        //            default namespace on the node itself and not worry about setting a prefix for that namespace.
-                        namespace.setPrefix("");
-                    }
+                    namespace.setPrefix("");
                 }
             }
             return qualify(namespace.getPrefix(), localName);

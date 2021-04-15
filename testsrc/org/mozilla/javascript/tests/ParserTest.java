@@ -5,7 +5,6 @@
 package org.mozilla.javascript.tests;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 
 import org.mozilla.javascript.CompilerEnvirons;
@@ -42,7 +41,7 @@ import org.mozilla.javascript.ast.StringLiteral;
 import org.mozilla.javascript.ast.SwitchCase;
 import org.mozilla.javascript.ast.SwitchStatement;
 import org.mozilla.javascript.ast.TryStatement;
-import org.mozilla.javascript.ast.UnaryExpression;
+import org.mozilla.javascript.ast.UpdateExpression;
 import org.mozilla.javascript.ast.VariableDeclaration;
 import org.mozilla.javascript.ast.VariableInitializer;
 import org.mozilla.javascript.ast.WithStatement;
@@ -81,6 +80,32 @@ public class ParserTest extends TestCase {
 
         assertEquals("var s = 3;\nvar t = 1;\n", root.toSource());
     }
+    
+    public void testCommentInArray() throws IOException{
+        //Test a single comment
+        AstRoot root = parseAsReader(
+                "var array = [/**/];");
+        assertNotNull(root.getComments());
+        assertEquals(1, root.getComments().size());
+        assertEquals(root.toSource(),"var array = [];\n");
+        //Test multiple comments
+        root = parseAsReader(
+                "var array = [/*Hello*/ /*World*/ 1,2];");
+        assertNotNull(root.getComments());
+        assertEquals(2, root.getComments().size());
+        assertEquals(root.toSource(),"var array = [1, 2];\n");
+        //Test no comments
+        root = parseAsReader(
+                "var array = [1,2];");
+        assertNull(root.getComments());
+        assertEquals(root.toSource(),"var array = [1, 2];\n");
+        root = parseAsReader(
+                "var array = [1,/*hello*/2,/*World*/3];");
+        //Test comments in middle
+        assertNotNull(root.getComments());
+        assertEquals(2, root.getComments().size());
+        assertEquals(root.toSource(),"var array = [1, 2, 3];\n");
+    }
 
     public void testNewlineAndComments() throws IOException {
         AstRoot root = parseAsReader(
@@ -90,6 +115,20 @@ public class ParserTest extends TestCase {
         assertEquals(2, root.getComments().size());
 
         assertEquals("var s = 3;\n/* */\n\n/* txt */\n\nvar t = 1;\n", root.toSource());
+    }
+
+    public void testNewlineAndCommentsFunction() {
+        AstRoot root = parse(
+            "f('2345' // Second arg\n);");
+        assertNotNull(root.getComments());
+        assertEquals(1, root.getComments().size());
+    }
+
+    public void testNewlineAndCommentsFunction2() {
+        AstRoot root = parse(
+            "f('1234',\n// Before\n'2345' // Second arg\n);");
+        assertNotNull(root.getComments());
+        assertEquals(2, root.getComments().size());
     }
 
     public void testAutoSemiBeforeComment1() {
@@ -275,7 +314,7 @@ public class ParserTest extends TestCase {
         AstNode caseArg = firstCase.getExpression();
         List<AstNode> caseBody = firstCase.getStatements();
         ExpressionStatement exprStmt = (ExpressionStatement) caseBody.get(0);
-        UnaryExpression incrExpr = (UnaryExpression) exprStmt.getExpression();
+        UpdateExpression incrExpr = (UpdateExpression) exprStmt.getExpression();
         AstNode incrVar = incrExpr.getOperand();
 
         SwitchCase secondCase = cases.get(1);
@@ -440,8 +479,8 @@ public class ParserTest extends TestCase {
 
         ExpressionStatement first = (ExpressionStatement) root.getFirstChild();
         ExpressionStatement secondStmt = (ExpressionStatement) first.getNext();
-        UnaryExpression firstOp = (UnaryExpression) first.getExpression();
-        UnaryExpression secondOp = (UnaryExpression) secondStmt.getExpression();
+        UpdateExpression firstOp = (UpdateExpression) first.getExpression();
+        UpdateExpression secondOp = (UpdateExpression) secondStmt.getExpression();
         AstNode firstVarRef = firstOp.getOperand();
         AstNode secondVarRef = secondOp.getOperand();
 
@@ -1313,6 +1352,28 @@ public class ParserTest extends TestCase {
                         new String[] { "\"eval\" is not a valid identifier for this use in strict mode." });
     }
 
+    public void testBasicFunction() {
+      AstNode root = parse("function f() { return 1; }");
+      FunctionNode f = (FunctionNode)root.getFirstChild();
+      assertEquals("f", f.getName());
+      assertFalse(f.isGenerator());
+      assertFalse(f.isES6Generator());
+    }
+
+    public void testES6Generator() {
+      environment.setLanguageVersion(Context.VERSION_ES6);
+      AstNode root = parse("function * g() { return true; }");
+      FunctionNode f = (FunctionNode)root.getFirstChild();
+      assertEquals("g", f.getName());
+      assertTrue(f.isGenerator());
+      assertTrue(f.isES6Generator());
+    }
+
+    public void testES6GeneratorNot() {
+      expectParseErrors("function * notES6() { return true; }",
+        new String[] { "missing ( before function parameters." });
+    }
+
     private void expectParseErrors(String string, String [] errors) {
       parse(string, errors, null, false);
     }
@@ -1328,34 +1389,39 @@ public class ParserTest extends TestCase {
     private AstRoot parse(
         String string, final String [] errors, final String [] warnings,
         boolean jsdoc) {
+        return parse(string, errors, warnings, jsdoc, environment);
+    }
+
+    static AstRoot parse(String string, final String [] errors, final String [] warnings,
+        boolean jsdoc, CompilerEnvirons env) {
         TestErrorReporter testErrorReporter =
             new TestErrorReporter(errors, warnings) {
-          @Override
-          public EvaluatorException runtimeError(
-               String message, String sourceName, int line, String lineSource,
-               int lineOffset) {
-             if (errors == null) {
-               throw new UnsupportedOperationException();
-             }
-             return new EvaluatorException(
-               message, sourceName, line, lineSource, lineOffset);
-           }
-        };
-        environment.setErrorReporter(testErrorReporter);
+                @Override
+                public EvaluatorException runtimeError(
+                    String message, String sourceName, int line, String lineSource,
+                    int lineOffset) {
+                    if (errors == null) {
+                        throw new UnsupportedOperationException();
+                    }
+                    return new EvaluatorException(
+                        message, sourceName, line, lineSource, lineOffset);
+                }
+            };
+        env.setErrorReporter(testErrorReporter);
 
-        environment.setRecordingComments(true);
-        environment.setRecordingLocalJsDocComments(jsdoc);
+        env.setRecordingComments(true);
+        env.setRecordingLocalJsDocComments(jsdoc);
 
-        Parser p = new Parser(environment, testErrorReporter);
+        Parser p = new Parser(env, testErrorReporter);
         AstRoot script = null;
         try {
-          script = p.parse(string, null, 0);
+            script = p.parse(string, null, 0);
         } catch (EvaluatorException e) {
-          if (errors == null) {
-            // EvaluationExceptions should not occur when we aren't expecting
-            // errors.
-            throw e;
-          }
+            if (errors == null) {
+                // EvaluationExceptions should not occur when we aren't expecting
+                // errors.
+                throw e;
+            }
         }
 
         assertTrue(testErrorReporter.hasEncounteredAllErrors());
@@ -1372,7 +1438,7 @@ public class ParserTest extends TestCase {
         environment.setRecordingLocalJsDocComments(true);
 
         Parser p = new Parser(environment, testErrorReporter);
-        AstRoot script = p.parse(new StringReader(string), null, 0);
+        AstRoot script = p.parse(string, null, 0);
 
         assertTrue(testErrorReporter.hasEncounteredAllErrors());
         assertTrue(testErrorReporter.hasEncounteredAllWarnings());

@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -33,31 +34,38 @@ final class MemberBox implements Serializable
 
     MemberBox(AccessibleObject executable)
     {
-        this.memberObject = executable;
+        init(method);
     }
 
     AccessibleObject member()
     {
-        return memberObject;
+        init(constructor);
     }
 
-    Class<?>[] getParameterTypes()
+    private void init(Method method)
     {
         return CompatExecutables.getParameterTypes(memberObject);
     }
 
-    Class<?> getReturnType()
+    private void init(Constructor<?> constructor)
     {
-        return ((Method)memberObject).getReturnType();
+        this.memberObject = constructor;
+        this.argTypes = constructor.getParameterTypes();
+        this.vararg = constructor.isVarArgs();
     }
 
-    boolean isVarArgs()
+    Method method()
     {
         return CompatExecutables.isVarArgs(memberObject);
     }
 
     int getParameterCount() {
         return CompatExecutables.getParameterCount(memberObject);
+    }
+
+    Member member()
+    {
+        return memberObject;
     }
 
     boolean isMethod()
@@ -105,7 +113,7 @@ final class MemberBox implements Serializable
             }
             sb.append(name);
         }
-        sb.append(JavaMembers.liveConnectSignature(getParameterTypes()));
+        sb.append(JavaMembers.liveConnectSignature(argTypes));
         return sb.toString();
     }
 
@@ -115,14 +123,82 @@ final class MemberBox implements Serializable
         return memberObject.toString();
     }
 
+    /**
+     * Function returned by calls to __lookupGetter__
+     */
+    Function asGetterFunction(final String name, final Scriptable scope) {
+        // Note: scope is the scriptable this function is related to; therefore this function
+        // is constant for this member box.
+        // Because of this we can cache the function in the attribute
+        if (asGetterFunction == null) {
+            asGetterFunction = new BaseFunction(scope, ScriptableObject.getFunctionPrototype(scope)) {
+                @Override
+                public Object call(Context cx, Scriptable callScope, Scriptable thisObj, Object[] originalArgs) {
+                    MemberBox nativeGetter = MemberBox.this;
+                    Object getterThis;
+                    Object[] args;
+                    if (nativeGetter.delegateTo == null) {
+                        getterThis = thisObj;
+                        args = ScriptRuntime.emptyArgs;
+                    } else {
+                        getterThis = nativeGetter.delegateTo;
+                        args = new Object[] { thisObj };
+
+                    }
+                    return nativeGetter.invoke(getterThis, args);
+                }
+
+                @Override
+                public String getFunctionName() {
+                    return name;
+                }
+            };
+        }
+        return asGetterFunction;
+    }
+
+    /**
+     * Function returned by calls to __lookupSetter__
+     */
+    Function asSetterFunction(final String name, final Scriptable scope) {
+        // Note: scope is the scriptable this function is related to; therefore this function
+        // is constant for this member box.
+        // Because of this we can cache the function in the attribute
+        if (asSetterFunction == null) {
+            asSetterFunction = new BaseFunction(scope, ScriptableObject.getFunctionPrototype(scope)) {
+                @Override
+                public Object call(Context cx, Scriptable callScope, Scriptable thisObj, Object[] originalArgs) {
+                    MemberBox nativeSetter = MemberBox.this;
+                    Object setterThis;
+                    Object[] args;
+                    Object value = originalArgs.length > 0 ? originalArgs[0] : Undefined.instance;
+                    if (nativeSetter.delegateTo == null) {
+                        setterThis = thisObj;
+                        args = new Object[] { value };
+                    } else {
+                        setterThis = nativeSetter.delegateTo;
+                        args = new Object[] { thisObj, value };
+                    }
+                    return nativeSetter.invoke(setterThis, args);
+                }
+
+                @Override
+                public String getFunctionName() {
+                    return name;
+                }
+            };
+        }
+        return asSetterFunction;
+    }
+
     Object invoke(Object target, Object[] args)
     {
-        Method method = (Method)memberObject;
+        Method method = method();
         try {
             try {
                 return method.invoke(target, args);
             } catch (IllegalAccessException ex) {
-                Method accessible = searchAccessibleMethod(method, getParameterTypes());
+                Method accessible = searchAccessibleMethod(method, argTypes);
                 if (accessible != null) {
                     memberObject = accessible;
                     method = accessible;
@@ -150,7 +226,7 @@ final class MemberBox implements Serializable
 
     Object newInstance(Object[] args)
     {
-        Constructor<?> ctor = (Constructor<?>)memberObject;
+        Constructor<?> ctor = ctor();
         try {
             try {
                 return ctor.newInstance(args);
@@ -207,7 +283,12 @@ final class MemberBox implements Serializable
         throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        memberObject = readMember(in);
+        Member member = readMember(in);
+        if (member instanceof Method) {
+            init((Method)member);
+        } else {
+            init((Constructor<?>)member);
+        }
     }
 
     private void writeObject(ObjectOutputStream out)
@@ -321,4 +402,3 @@ final class MemberBox implements Serializable
         return result;
     }
 }
-

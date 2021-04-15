@@ -729,6 +729,10 @@ public class Decompiler
             case Token.YIELD:
                 result.append("yield ");
                 break;
+            
+            case Token.YIELD_STAR:
+                result.append("yield *");
+                break;
 
             case Token.NOT:
                 result.append('!');
@@ -772,6 +776,10 @@ public class Decompiler
 
             case Token.MOD:
                 result.append(" % ");
+                break;
+
+            case Token.EXP:
+                result.append(" ** ");
                 break;
 
             case Token.COLONCOLON:

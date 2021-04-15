@@ -96,7 +96,7 @@ public class FunctionObject extends BaseFunction
         }
         String methodName = member.getName();
         this.functionName = name;
-        Class<?>[] types = member.getParameterTypes();
+        Class<?>[] types = member.argTypes;
         int arity = types.length;
         if (arity == 4 && (types[1].isArray() || types[2].isArray())) {
             // Either variable args or an error.
@@ -107,7 +107,7 @@ public class FunctionObject extends BaseFunction
                     types[2] != ScriptRuntime.FunctionClass ||
                     types[3] != Boolean.TYPE)
                 {
-                    throw Context.reportRuntimeError1(
+                    throw Context.reportRuntimeErrorById(
                         "msg.varargs.ctor", methodName);
                 }
                 parmsLength = VARARGS_CTOR;
@@ -118,7 +118,7 @@ public class FunctionObject extends BaseFunction
                     types[2].getComponentType() != ScriptRuntime.ObjectClass ||
                     types[3] != ScriptRuntime.FunctionClass)
                 {
-                    throw Context.reportRuntimeError1(
+                    throw Context.reportRuntimeErrorById(
                         "msg.varargs.fun", methodName);
                 }
                 parmsLength = VARARGS_METHOD;
@@ -130,7 +130,7 @@ public class FunctionObject extends BaseFunction
                 for (int i = 0; i != arity; ++i) {
                     int tag = getTypeTag(types[i]);
                     if (tag == JAVA_UNSUPPORTED_TYPE) {
-                        throw Context.reportRuntimeError2(
+                        throw Context.reportRuntimeErrorById(
                             "msg.bad.parms", types[i].getName(), methodName);
                     }
                     typeTags[i] = (byte)tag;
@@ -139,7 +139,8 @@ public class FunctionObject extends BaseFunction
         }
 
         if (member.isMethod()) {
-            Class<?> returnType = member.getReturnType();
+            Method method = member.method();
+            Class<?> returnType = method.getReturnType();
             if (returnType == Void.TYPE) {
                 hasVoidReturn = true;
             } else {
@@ -148,7 +149,7 @@ public class FunctionObject extends BaseFunction
         } else {
             Class<?> ctorType = member.getDeclaringClass();
             if (!ScriptRuntime.ScriptableClass.isAssignableFrom(ctorType)) {
-                throw Context.reportRuntimeError1(
+                throw Context.reportRuntimeErrorById(
                     "msg.bad.ctor.return", ctorType.getName());
             }
         }
@@ -157,7 +158,7 @@ public class FunctionObject extends BaseFunction
     }
 
     /**
-     * @return One of <tt>JAVA_*_TYPE</tt> constants to indicate desired type
+     * @return One of <code>JAVA_*_TYPE</code> constants to indicate desired type
      *         or {@link #JAVA_UNSUPPORTED_TYPE} if the convertion is not
      *         possible
      */
@@ -202,7 +203,7 @@ public class FunctionObject extends BaseFunction
           case JAVA_DOUBLE_TYPE:
             if (arg instanceof Double)
                 return arg;
-            return new Double(ScriptRuntime.toNumber(arg));
+            return Double.valueOf(ScriptRuntime.toNumber(arg));
           case JAVA_SCRIPTABLE_TYPE:
               return ScriptRuntime.toObjectOrNull(cx, arg, scope);
           case JAVA_OBJECT_TYPE:
@@ -241,7 +242,11 @@ public class FunctionObject extends BaseFunction
      */
     public AccessibleObject getMethodOrConstructor()
     {
-        return member.member();
+        if (member.isMethod()) {
+            return member.method();
+        } else {
+            return member.ctor();
+        }
     }
 
     static Method findSingleMethod(Method[] methods, String name)
@@ -251,7 +256,7 @@ public class FunctionObject extends BaseFunction
             Method method = methods[i];
             if (method != null && name.equals(method.getName())) {
                 if (found != null) {
-                    throw Context.reportRuntimeError2(
+                    throw Context.reportRuntimeErrorById(
                         "msg.no.overload", name,
                         method.getDeclaringClass().getName());
                 }
@@ -351,7 +356,7 @@ public class FunctionObject extends BaseFunction
     {
         int tag = getTypeTag(desired);
         if (tag == JAVA_UNSUPPORTED_TYPE) {
-            throw Context.reportRuntimeError1
+            throw Context.reportRuntimeErrorById
                 ("msg.cant.convert", desired.getName());
         }
         return convertArg(cx, scope, arg, tag);
@@ -413,8 +418,7 @@ public class FunctionObject extends BaseFunction
                     }
                     if (!compatible) {
                         // Couldn't find an object to call this on.
-                        throw ScriptRuntime.typeError1("msg.incompat.call",
-                                                       functionName);
+                        throw ScriptRuntime.typeErrorById("msg.incompat.call", functionName);
                     }
                 }
             }
@@ -506,14 +510,15 @@ public class FunctionObject extends BaseFunction
     {
         in.defaultReadObject();
         if (parmsLength > 0) {
-            Class<?>[] types = member.getParameterTypes();
+            Class<?>[] types = member.argTypes;
             typeTags = new byte[parmsLength];
             for (int i = 0; i != parmsLength; ++i) {
                 typeTags[i] = (byte)getTypeTag(types[i]);
             }
         }
         if (member.isMethod()) {
-            Class<?> returnType = member.getReturnType();
+            Method method = member.method();
+            Class<?> returnType = method.getReturnType();
             if (returnType == Void.TYPE) {
                 hasVoidReturn = true;
             } else {

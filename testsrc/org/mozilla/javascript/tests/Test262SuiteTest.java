@@ -88,7 +88,6 @@ public class Test262SuiteTest {
             "cross-realm",
             "default-arg",
             "default-parameters",
-            "generators",
             "new.target",
             "object-rest",
             "regexp-dotall",
@@ -97,8 +96,27 @@ public class Test262SuiteTest {
             "regexp-unicode-property-escapes",
             "super",
             "tail-call-optimization",
-            "u180e"
+            "u180e",
+            "numeric-separator-literal"
     ));
+
+    static {
+        // Reduce the number of tests that we run by a factor of three...
+        String overriddenLevel = getOverriddenLevel();
+        if (overriddenLevel != null) {
+            OPT_LEVELS = new int[]{Integer.parseInt(overriddenLevel)};
+        } else {
+            OPT_LEVELS = new int[]{-1, 0, 9};
+        }
+    }
+
+    private static String getOverriddenLevel() {
+        String optLevel = System.getenv("TEST_262_OPTLEVEL");
+        if (optLevel == null) {
+            optLevel = System.getProperty("TEST_OPTLEVEL");
+        }
+        return optLevel;
+    }
 
     @BeforeClass
     public static void setUpClass() {
@@ -170,70 +188,71 @@ public class Test262SuiteTest {
     public void test262Case() {
         Context cx = Context.enter();
         cx.setOptimizationLevel(optLevel);
-
-        Scriptable scope;
+        cx.setGeneratingDebug(true);
         try {
-            scope = buildScope(cx);
-        } catch (Exception ex) {
-            Context.exit();
-            throw new RuntimeException("Failed to build a scope with the harness files.", ex);
-        }
-
-        String str = testCase.source;
-        if (useStrict) {
-            str = "\"use strict\";\n" + str;
-        }
-
-        boolean failedEarly = true;
-        try {
-            Script caseScript = cx.compileString(str, testFilePath, 0, null);
-
-            failedEarly = false; // not after this line
-            caseScript.exec(cx, scope);
-
-            if (testCase.isNegative()) {
-                fail(String.format(
-                        "Failed a negative test. Expected error: %s (at phase '%s')",
-                        testCase.expectedError,
-                        testCase.hasEarlyError ? "early" : "runtime"));
+            Scriptable scope;
+            try {
+                scope = buildScope(cx);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to build a scope with the harness files.", ex);
             }
 
-            if (fails) {
-                Integer count = EXCLUDED_TESTS.get(testCase.file);
-                if (count != null) {
-                    count -= 1;
-                    EXCLUDED_TESTS.put(testCase.file, count);
+            String str = testCase.source;
+            if (useStrict) {
+                str = "\"use strict\";\n" + str;
+            }
+
+            boolean failedEarly = true;
+            try {
+                Script caseScript = cx.compileString(str, testFilePath, 0, null);
+
+                failedEarly = false; // not after this line
+                caseScript.exec(cx, scope);
+
+                if (testCase.isNegative()) {
+                    fail(String.format(
+                            "Failed a negative test. Expected error: %s (at phase '%s')",
+                            testCase.expectedError,
+                            testCase.hasEarlyError ? "early" : "runtime"));
                 }
-            }
-        } catch (RhinoException ex) {
-            if (fails) {
-                return;
-            }
 
-            if (!testCase.isNegative()) {
-                fail(String.format("%s%n%s", ex.getMessage(), ex.getScriptStackTrace()));
-            }
+                if (fails) {
+                    Integer count = EXCLUDED_TESTS.get(testCase.file);
+                    if (count != null) {
+                        count -= 1;
+                        EXCLUDED_TESTS.put(testCase.file, count);
+                    }
+                }
+            } catch (RhinoException ex) {
+                if (fails) {
+                    return;
+                }
 
-            String errorName = extractJSErrorName(ex);
+                if (!testCase.isNegative()) {
+                    fail(String.format("%s%n%s", ex.getMessage(), ex.getScriptStackTrace()));
+                }
 
-            if (testCase.hasEarlyError && !failedEarly) {
-                fail(String.format(
-                        "Expected an early error: %s, got: %s in the runtime",
-                        testCase.expectedError,
-                        errorName));
-            }
+                String errorName = extractJSErrorName(ex);
 
-            assertEquals(ex.details(), testCase.expectedError, errorName);
-        } catch (Exception ex) {
-            if (fails) {
-                return;
+                if (testCase.hasEarlyError && !failedEarly) {
+                    fail(String.format(
+                            "Expected an early error: %s, got: %s in the runtime",
+                            testCase.expectedError,
+                            errorName));
+                }
+
+                assertEquals(ex.details(), testCase.expectedError, errorName);
+            } catch (Exception ex) {
+                if (fails) {
+                    return;
+                }
+                throw ex;
+            } catch (AssertionError ex) {
+                if (fails) {
+                    return;
+                }
+                throw ex;
             }
-            throw ex;
-        } catch (AssertionError ex) {
-            if (fails) {
-                return;
-            }
-            throw ex;
         } finally {
             Context.exit();
         }

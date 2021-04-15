@@ -26,26 +26,27 @@ import java.util.NoSuchElementException;
  * exist, and even lets an iterator keep on iterating on a collection that was
  * empty when it was created..
  */
-public class Hashtable
-    implements Serializable, Iterable<Hashtable.Entry>
-{
+public class Hashtable implements Serializable, Iterable<Hashtable.Entry> {
+
+    private static final long serialVersionUID = -7151554912419543747L;
     private final HashMap<Object, Entry> map = new HashMap<>();
     private Entry first = null;
     private Entry last = null;
 
     /**
-     * One entry in the hash table. Override equals and hashcode because
-     * this is another area in which JavaScript and Java differ. This entry
-     * also becomes a node in the linked list.
+     * One entry in the hash table. Override equals and hashcode because this is
+     * another area in which JavaScript and Java differ. This entry also becomes a
+     * node in the linked list.
      */
-    public static final class Entry
-        implements Serializable {
-        protected Object key;
-        protected Object value;
-        protected boolean deleted;
-        protected Entry next;
-        protected Entry prev;
-        private final int hashCode;
+
+      public static final class Entry implements Serializable {
+      private static final long serialVersionUID = 4086572107122965503L;
+      protected Object key;
+      protected Object value;
+      protected boolean deleted;
+      protected Entry next;
+      protected Entry prev;
+      private final int hashCode;
 
         Entry() {
             hashCode = 0;
@@ -54,14 +55,16 @@ public class Hashtable
         Entry(Object k, Object value) {
             if ((k instanceof Number) && ( ! ( k instanceof Double))) {
                 // Hash comparison won't work if we don't do this
-                this.key = ((Number)k).doubleValue();
+                this.key = Double.valueOf(((Number)k).doubleValue());
+            } else if (k instanceof ConsString) {
+                this.key = k.toString();
             } else {
                 this.key = k;
             }
 
             if (key == null) {
                 hashCode = 0;
-            } else if (k.equals(ScriptRuntime.negativeZero)) {
+            } else if (k.equals(ScriptRuntime.negativeZeroObj)) {
                 hashCode = 0;
             } else {
                 hashCode = key.hashCode();
@@ -96,6 +99,9 @@ public class Hashtable
 
         @Override
         public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            }
             try {
                 return ScriptRuntime.sameZero(key, ((Entry)o).key);
             } catch (ClassCastException cce) {
@@ -104,7 +110,7 @@ public class Hashtable
         }
     }
 
-    private Entry makeDummy() {
+    private static Entry makeDummy() {
         final Entry d = new Entry();
         d.clear();
         return d;
@@ -199,8 +205,7 @@ public class Hashtable
         // will drive forward right into the new list. If they are not, then
         // nothing is referencing the old list and it'll get GCed.
         if (first != null) {
-            Entry dummy = new Entry();
-            dummy.clear();
+            Entry dummy = makeDummy();
             last.next = dummy;
             first = last = dummy;
         }
@@ -215,7 +220,7 @@ public class Hashtable
 
     // The iterator for this class works directly on the linked list so that it implements
     // the specified iteration behavior, which is very different from Java.
-    private final class Iter
+    private final static class Iter
         implements Iterator<Entry>
     {
         private Entry pos;
